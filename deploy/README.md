@@ -1,6 +1,7 @@
 # Proposed NatoCheck deployment
 
-Status: initial installation approved by the owner; live verification is pending.
+Status: initial installation approved by the owner and completed on 15 November
+2026. HTTPS, the exercise API and the bilingual contribution links were verified.
 
 ## Verified discovery
 
@@ -15,11 +16,11 @@ Status: initial installation approved by the owner; live verification is pending
 
 ## Approved initial setup
 
-Proposed DNS change: add only `A natocheck.eventhacker.de -> 94.130.7.235`.
+Installed DNS record: `A natocheck.eventhacker.de -> 94.130.7.235`.
 Do not add an AAAA record without verifying a working IPv6 path. Back up the DNS
 RRSet with the hosting skill before changing it.
 
-Recommended layout:
+Installed layout:
 
 - Checkout: `/var/www/natocheck`, release branch `main`.
 - Dedicated non-login service account: `natocheck`.
@@ -30,7 +31,7 @@ Recommended layout:
   Install an approved model separately; do not download at request time.
 - Loopback upstream: `127.0.0.1:8767` behind Apache HTTPS.
 
-An authorized administrator must first verify the proposed paths and port,
+For a fresh installation, an authorized administrator must first verify the proposed paths and port,
 Python/ffmpeg compatibility, model and module availability, and repository read
 access. Verify the existing runtime against the pinned Whisper requirement. Do not modify
 shared dependencies automatically. Keep
@@ -55,6 +56,14 @@ only after its account, paths, environment and model are ready.
 The release uses the already available, verified `root@ai` key-based access.
 It does not assume sudo or enable new root access. `NATOCHECK_SSH_TARGET` can
 select another account already authorized to perform the release.
+
+The reviewed installation entry point is `scripts/install-on-ai.sh`. It runs
+through the existing authorized `root@ai` connection, refuses an existing
+checkout or site configuration, clones the exact pushed release, verifies tests,
+creates the dedicated service account, copies the existing local model, installs
+the committed templates and obtains HTTPS through the existing Apache/Certbot
+workflow. The owner explicitly approved the exact ACME endpoint, which was then
+published in the central domain whitelist. No shared Python packages were changed.
 
 ## Subsequent releases
 

@@ -1,6 +1,6 @@
 # NatoCheck
 
-A small NATO spelling game by Eventhacker. Intended address:
+A small NATO spelling game by Eventhacker. Play at:
 **https://natocheck.eventhacker.de/**. This is an experimental training game.
 
 ## Play
@@ -44,7 +44,8 @@ cd /home/magnetix/projects/xvx/externals/natocheck
 Open **http://127.0.0.1:8767/**. No Codex session, OpenAI API key or cloud
 speech service is needed. Speech recognition needs `ffmpeg`, `ffprobe`, the
 pinned `openai-whisper` package in `requirements.txt`, and an existing local
-Whisper base model at `~/.cache/whisper/base.pt`. The application never downloads
+Whisper base model at `~/.cache/whisper/base.pt`. The recognizer receives the complete NATO vocabulary as context, never the
+exercise or its expected answer. It uses deterministic beam decoding. The application never downloads
 models during transcription. Model provisioning is a separate installation step.
 
 Configuration:
@@ -96,10 +97,9 @@ languages.
 
 ## Hosting
 
-See [deploy/README.md](deploy/README.md). The initial DNS, HTTPS, service and
-release setup requires approval before any live infrastructure changes. The
-repository contains deployment templates; their presence does not mean the
-public address is already live.
+See [deploy/README.md](deploy/README.md). The initial DNS, HTTPS, service and release setup was approved and completed.
+The HTTPS page and exercise API were verified. Future infrastructure changes
+still require appropriate authorization.
 
 ## Origin
 

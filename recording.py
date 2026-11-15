@@ -9,6 +9,8 @@ import subprocess
 import sys
 import wave
 
+from trainer import ALPHABET
+
 
 MAX_NO_SPEECH_PROBABILITY = 0.6
 MIN_AVERAGE_LOG_PROBABILITY = -1.0
@@ -67,7 +69,8 @@ def transcribe(source, language, output, strict=False):
     import whisper
     model = whisper.load_model(str(model_path), device='cpu')
     result = model.transcribe(
-        str(wav_path), language=language, fp16=False, temperature=0,
+        str(wav_path), language=language, fp16=False, temperature=0, beam_size=5,
+        initial_prompt="NATO phonetic alphabet: " + ", ".join(ALPHABET.values()) + ".",
         condition_on_previous_text=False,
         no_speech_threshold=MAX_NO_SPEECH_PROBABILITY,
         logprob_threshold=MIN_AVERAGE_LOG_PROBABILITY,
