@@ -11,7 +11,7 @@ ssh -o BatchMode=yes -o ConnectTimeout=15 "${NATOCHECK_SSH_TARGET:-root@ai}" bas
 set -euo pipefail
 cd /var/www/natocheck
 release_sha="$1"
-dependencies_ready="$2"
+dependencies_ready="${2:-}"
 exec 9>.git/deploy.lock
 flock -n 9 || { echo 'Another deployment is running.' >&2; exit 1; }
 [[ "$(git branch --show-current)" == main ]]
@@ -34,6 +34,10 @@ systemctl is-active --quiet natocheck
 [[ -z "$(git status --porcelain)" ]]
 printf '%s previous=%s target=%s status=completed\n' "$(date -u +%FT%TZ)" "$previous_sha" "$release_sha" >> .git/deploy.log
 REMOTE
-curl --fail --silent --show-error --retry 3 --retry-delay 1 https://natocheck.eventhacker.de/ | grep -q 'NatoCheck'
-curl --fail --silent --show-error -H 'Content-Type: application/json' --data '{"mode":"letter"}' https://natocheck.eventhacker.de/api/trainer/task | "$local_python" -c 'import json,sys; task=json.load(sys.stdin); assert len(task["prompt"]) == 1 and task["id"]'
+verify_args=()
+if [[ -n "${NATOCHECK_VERIFY_IP:-}" ]]; then
+    verify_args=(--resolve "natocheck.eventhacker.de:443:${NATOCHECK_VERIFY_IP}")
+fi
+curl "${verify_args[@]}" --fail --silent --show-error --retry 3 --retry-delay 1 https://natocheck.eventhacker.de/ | grep -q 'NatoCheck'
+curl "${verify_args[@]}" --fail --silent --show-error -H 'Content-Type: application/json' --data '{"mode":"letter"}' https://natocheck.eventhacker.de/api/trainer/task | "$local_python" -c 'import json,sys; task=json.load(sys.stdin); assert len(task["prompt"]) == 1 and task["id"]'
 echo "HTTPS and exercise checks passed: $release_sha"

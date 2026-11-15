@@ -78,7 +78,10 @@ The script checks clean local and remote worktrees, exact remote release SHA,
 fast-forward history and dependency changes. Dependency changes require an
 explicit installation step before deployment. After installing the reviewed
 requirements, set `NATOCHECK_DEPENDENCIES_READY` to the exact release SHA to
-acknowledge that step. `NATOCHECK_PYTHON` selects an existing local Python; in
+acknowledge that step. If a desktop resolver still caches the pre-installation
+NXDOMAIN answer, independently verify public DNS first, then set
+`NATOCHECK_VERIFY_IP` to that verified address for HTTPS checks; certificate
+validation still uses the public hostname. `NATOCHECK_PYTHON` selects an existing local Python; in
 the XvX checkout it defaults to `../../xvx-venv/bin/python`. It serializes releases, restarts
 the service, records revisions and status, and verifies HTTPS and a live exercise.
 It never installs infrastructure, changes DNS, installs dependencies or runs
