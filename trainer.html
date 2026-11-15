@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NatoCheck · Buchstabieren. Sprechen. Checken.</title>
+    <link rel="stylesheet" href="/trainer.css">
+    <script src="/trainer.js" defer></script>
+</head>
+<body>
+<main>
+    <header class="brand">
+        <a class="wordmark" href="/" aria-label="NatoCheck Startseite">nato<span>check</span><span class="dot">.</span></a>
+        <button type="button" id="alphabetToggle" aria-expanded="false" aria-controls="alphabetPanel">NATO-Alphabet einblenden</button>
+        <img src="/assets/eventhacker-logo-white.webp" width="560" height="209" alt="Eventhacker Köln">
+    </header>
+    <div class="intro"><span class="eyebrow">ALFA BIS ZULU / DEIN FUNK-CHECK</span>
+        <h1>Buchstabe für Buchstabe.<br><span>Klar und deutlich.</span></h1>
+        <p>Buchstabiere, was du siehst. Sprich die NATO-Codewörter ins Mikrofon und prüfe anschließend, was angekommen ist.</p>
+    </div>
+    <section id="alphabetPanel" class="card reference" aria-labelledby="alphabet-title" hidden><div class="section-head"><h2 id="alphabet-title">Das NATO-Alphabet</h2><button type="button" id="alphabetClose" class="text-button">Schließen ×</button></div><div id="alphabet" class="alphabet"></div><p class="small">Schreibvarianten wie Alpha/Alfa, Juliet/Juliett und Fox Trot/Foxtrot werden akzeptiert. Zusätzliche Wörter und falsche Reihenfolgen zählen als Abweichung.</p><a href="https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet" target="_blank" rel="noopener">Mehr zum NATO-Alphabet ↗</a></section>
+    <section class="game-launch" aria-label="Spielmodus">
+        <div><span class="eyebrow">LUST AUF EINE CHALLENGE?</span><h2>10 Runden. 3 Leben. Dein Highscore.</h2><p>30 Sekunden pro Runde. Von einzelnen Buchstaben bis zu ganzen Wörtern.</p></div>
+        <button type="button" id="gameStart" class="primary" disabled>Challenge starten →</button>
+    </section>
+    <section id="gameBoard" class="game-board" aria-label="Spielstand" hidden>
+        <div><span>RUNDE</span><b id="gameRound">1 / 10</b></div><div><span>PUNKTE</span><b id="gamePoints">0</b></div><div><span>SERIE</span><b id="gameStreak">0</b></div><div><span>LEBEN</span><b id="gameLives">♥ ♥ ♥</b></div><div><span>ZEIT</span><b id="gameTime">30 s</b></div><span id="gameHelp" class="tag" hidden>MIT SPICKZETTEL · 50 PUNKTE, KEIN BONUS</span><button type="button" id="gameEnd" class="text-button">Spiel beenden</button>
+        <progress id="gameClock" value="30" max="30" aria-label="Verbleibende Zeit"></progress>
+    </section>
+    <section id="gameSummary" class="card game-summary" aria-live="polite" hidden><span class="eyebrow">CHALLENGE ABGESCHLOSSEN</span><h2 id="gameSummaryTitle"></h2><p id="gameSummaryText"></p><button type="button" id="playAgain" class="primary">Noch eine Runde →</button></section>
+    <div class="workspace">
+        <section class="card exercise" aria-labelledby="exercise-title">
+            <div class="section-head"><h2 id="exercise-title">Deine Aufgabe</h2><span class="tag">TRAINING / JUST FOR FUN</span></div>
+            <div class="modes" role="group" aria-label="Übungsart">
+                <button type="button" data-mode="letter" aria-pressed="true">Buchstabe</button>
+                <button type="button" data-mode="word" aria-pressed="false">Wort</button>
+                <button type="button" data-mode="sequence" aria-pressed="false">Zeichenfolge</button>
+            </div>
+            <p class="instruction">Sag das passende Codewort für jeden Buchstaben.</p>
+            <div id="prompt" class="prompt" aria-live="polite">…</div>
+            <div class="task-actions"><button type="button" id="reveal" class="text-button" disabled>Lösung zeigen</button><button type="button" id="next" class="text-button" disabled>Nächste Aufgabe →</button></div>
+            <p id="solution" class="solution" hidden></p>
+            <div class="record-actions"><button type="button" id="record" class="primary" aria-pressed="false" disabled><span aria-hidden="true">●</span> Antwort aufnehmen</button><button type="button" id="recordStop" disabled>Stoppen &amp; prüfen</button></div>
+            <p id="recordStatus" class="status" role="status">Trainer wird verbunden …</p>
+            <p id="error" class="error" role="alert"></p>
+            <audio id="preview" controls hidden aria-label="Deine letzte Aufnahme"></audio>
+        </section>
+        <aside class="card setup" aria-labelledby="setup-title">
+            <span class="eyebrow">01 / EINSTELLEN</span><h2 id="setup-title">Dein Mikrofon</h2>
+            <label for="microphone">Audioeingang</label><select id="microphone"><option value="">Standardmikrofon</option></select>
+            <label for="language">Erkennungssprache</label><select id="language"><option value="en">Englisch</option><option value="de">Deutsch</option></select>
+            <p>Die Codewörter bleiben englisch. Beginne zum Beispiel mit „Alfa“ für A oder „Bravo“ für B.</p>
+            <div class="steps"><span>01 <b>Aufgabe lesen</b></span><span>02 <b>Codewörter sprechen</b></span><span>03 <b>Ergebnis prüfen</b></span></div>
+            <p class="small">Aufnahme nur nach deinem Klick, maximal 60 Sekunden. Die Aufnahme geht an diesen App-Server und wird nach der Erkennung gelöscht. Kein externer Sprachdienst.</p>
+        </aside>
+    </div>
+    <section id="answer" class="card answer" aria-labelledby="answer-title" hidden>
+        <div class="section-head"><div><span class="eyebrow">02 / CHECKEN</span><h2 id="answer-title">Das ist angekommen</h2></div><span id="answerSource" class="tag">SPRACHERKENNUNG</span></div>
+        <p id="rawText" class="raw-text"></p>
+        <div id="verdict" class="verdict" role="status"></div>
+        <div class="table-scroll"><table><thead><tr><th>Buchstabe</th><th>Erwartet</th><th>Erkannt</th><th>Check</th></tr></thead><tbody id="feedback"></tbody></table></div>
+        <p id="expected" class="solution"></p>
+        <div id="gameConfirm" class="game-confirm" hidden><p>Passt der erkannte Text zu deiner Antwort? Bestätige die Wertung oder nimm bei einem Erkennungsfehler erneut auf.</p><button type="button" id="confirmRound" class="primary">Ergebnis werten →</button></div>
+        <details id="correction"><summary>Erkennung falsch? Text korrigieren</summary><label for="transcript">Was du tatsächlich gesagt hast</label><textarea id="transcript" maxlength="2000" placeholder="Zum Beispiel: Alfa Bravo Charlie"></textarea><button type="button" id="checkText">Korrigierten Text prüfen</button><p class="small">Die erneute Prüfung wird als manuell korrigiert markiert.</p></details>
+    </section>
+    <section class="card manual"><details><summary>Ohne Mikrofon üben</summary><p>Du kannst die Codewörter auch eingeben und prüfen lassen.</p><label for="manualText">Deine Antwort</label><textarea id="manualText" maxlength="2000" placeholder="NATO-Codewörter eingeben …"></textarea><button type="button" id="manualCheck" disabled>Textantwort prüfen</button></details></section>
+
+    <footer><span>NatoCheck · Ein Eventhacker-Experiment.</span><span>Verglichen wird der erkannte Text, nicht die Aussprache.</span></footer>
+</main>
+</body>
+</html>

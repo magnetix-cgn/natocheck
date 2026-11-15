@@ -1,0 +1,28 @@
+[Unit]
+Description=NatoCheck local speech training application
+After=network.target
+
+[Service]
+Type=simple
+User=natocheck
+Group=natocheck
+WorkingDirectory=/var/www/natocheck
+Environment=NATOCHECK_ALLOWED_HOSTS=natocheck.eventhacker.de
+Environment=NATOCHECK_DATA_DIR=/var/lib/natocheck/recordings
+Environment=NATOCHECK_WHISPER_MODEL=/var/lib/natocheck/models/base.pt
+Environment=OMP_NUM_THREADS=2
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/var/www/natocheck/xvx-venv/bin/python app.py --port 8767
+Restart=on-failure
+RestartSec=5
+StateDirectory=natocheck
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/natocheck
+
+[Install]
+WantedBy=multi-user.target

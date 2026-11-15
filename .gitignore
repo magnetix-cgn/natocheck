@@ -1,0 +1,34 @@
+# Local settings, recordings, transcripts and generated audio
+out.user.*/
+out.*/
+settings.json
+config.json
+*.log
+*.wav
+*.webm
+*.ogg
+*.opus
+*.m4a
+*.mp3
+*.mp4
+*.pt
+*.onnx
+*.onnx.json
+
+# Credentials and machine-local files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+secrets*.json
+
+# Python and editor artifacts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*~
+.pytest_cache/
+xvx-venv/
