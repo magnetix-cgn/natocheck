@@ -86,6 +86,14 @@ busy handling, HTTP exercise flow and origin checks. Browser checks cover deskto
 and mobile layouts, the ten-round game, increasing difficulty, score confirmation,
 three lives, timeout, paused recognition time and reference-table scoring.
 
+## Open source and contributions
+
+NatoCheck is open source under the [MIT license](LICENSE). Want to change it?
+[Send a task, bug report or change request](https://github.com/magnetix-cgn/natocheck/issues/new?template=change_request.yml).
+German and English are welcome. Pull requests are welcome too; describe the
+change and how you checked it. The app includes the same invitation in both
+languages.
+
 ## Hosting
 
 See [deploy/README.md](deploy/README.md). The initial DNS, HTTPS, service and

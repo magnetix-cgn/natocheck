@@ -12,7 +12,7 @@ Environment=NATOCHECK_DATA_DIR=/var/lib/natocheck/recordings
 Environment=NATOCHECK_WHISPER_MODEL=/var/lib/natocheck/models/base.pt
 Environment=OMP_NUM_THREADS=2
 Environment=PYTHONDONTWRITEBYTECODE=1
-ExecStart=/var/www/natocheck/xvx-venv/bin/python app.py --port 8767
+ExecStart=/home/magnetix/projects/xvx/xvx-venv/bin/python app.py --port 8767
 Restart=on-failure
 RestartSec=5
 StateDirectory=natocheck
@@ -21,7 +21,7 @@ UMask=0077
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
-ProtectHome=true
+ProtectHome=read-only
 ReadWritePaths=/var/lib/natocheck
 
 [Install]

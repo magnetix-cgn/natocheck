@@ -7,7 +7,7 @@ local_python="${NATOCHECK_PYTHON:-../../xvx-venv/bin/python}"
 git fetch origin main
 release_sha="$(git rev-parse HEAD)"
 [[ "$release_sha" == "$(git rev-parse origin/main)" ]] || { echo 'Push and review origin/main before deploying.' >&2; exit 1; }
-ssh -o BatchMode=yes -o ConnectTimeout=15 "${NATOCHECK_SSH_TARGET:-ai}" bash -s -- "$release_sha" "${NATOCHECK_DEPENDENCIES_READY:-}" <<'REMOTE'
+ssh -o BatchMode=yes -o ConnectTimeout=15 "${NATOCHECK_SSH_TARGET:-root@ai}" bash -s -- "$release_sha" "${NATOCHECK_DEPENDENCIES_READY:-}" <<'REMOTE'
 set -euo pipefail
 cd /var/www/natocheck
 release_sha="$1"
@@ -23,12 +23,12 @@ git merge-base --is-ancestor HEAD "$release_sha"
 if ! git diff --quiet "$previous_sha" "$release_sha" -- requirements.txt; then
     [[ "$dependencies_ready" == "$release_sha" ]] || { echo 'Install reviewed dependencies explicitly and set NATOCHECK_DEPENDENCIES_READY to the release SHA.' >&2; exit 1; }
 fi
-test -x xvx-venv/bin/python
+test -x /home/magnetix/projects/xvx/xvx-venv/bin/python
 systemctl cat natocheck >/dev/null
 printf '%s previous=%s target=%s status=started\n' "$(date -u +%FT%TZ)" "$previous_sha" "$release_sha" >> .git/deploy.log
 trap 'printf "%s target=%s status=failed\n" "$(date -u +%FT%TZ)" "$release_sha" >> .git/deploy.log' ERR
 git merge --ff-only "$release_sha"
-xvx-venv/bin/python -m unittest discover -v
+/home/magnetix/projects/xvx/xvx-venv/bin/python -m unittest discover -v
 systemctl restart natocheck
 systemctl is-active --quiet natocheck
 [[ -z "$(git status --porcelain)" ]]

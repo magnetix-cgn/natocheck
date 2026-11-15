@@ -1,0 +1,29 @@
+name: Task / Change Request
+description: Suggest a change, report a bug or propose a task. / Änderung, Fehler oder Aufgabe vorschlagen.
+title: "[Request] "
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for helping improve NatoCheck. German and English are welcome. / Danke für deine Idee. Deutsch und Englisch sind willkommen."
+  - type: dropdown
+    id: kind
+    attributes:
+      label: "Type / Art"
+      options:
+        - Change Request / Änderungswunsch
+        - Bug report / Fehlermeldung
+        - Task / Aufgabe
+    validations:
+      required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: "What should change? / Was soll sich ändern?"
+      description: "Describe the current behavior and the result you would like. / Beschreibe den aktuellen Stand und dein gewünschtes Ergebnis."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: "Example or steps / Beispiel oder Schritte"
+      description: "For recognition issues, include the exercise, spoken codewords and recognized text. Do not post private recordings. / Bei Erkennungsfehlern: Aufgabe, gesprochene Codewörter und erkannter Text. Keine privaten Aufnahmen veröffentlichen."

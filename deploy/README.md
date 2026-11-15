@@ -1,19 +1,19 @@
 # Proposed NatoCheck deployment
 
-Status: templates prepared; initial setup has not been performed or approved.
+Status: initial installation approved by the owner; live verification is pending.
 
 ## Verified discovery
 
 - Selected repository: `https://github.com/magnetix-cgn/natocheck`.
 - Selected hostname: `natocheck.eventhacker.de` (allowed by the central whitelist).
 - Existing Eventhacker host: SSH alias `ai`; main domain A record `94.130.7.235`.
-- No NatoCheck A/AAAA record or `/var/www/natocheck` checkout was found.
-- The existing SSH account is `magnetix`, not root. No privileged access is assumed.
-- The host has ffmpeg, two CPUs and approximately 8 GB RAM. Python/Whisper
-  dependencies, model availability, Apache proxy modules and certificate access
-  still need privileged verification. No service or TLS availability is claimed.
+- A new NatoCheck A record points to `94.130.7.235`; no AAAA record was added.
+- Existing key-based `root@ai` access was verified for the authorized installation.
+- The host has ffmpeg, two CPUs and approximately 8 GB RAM. The existing XvX Python 3.13 environment includes Whisper 20250625 and PyTorch,
+  is readable by an unprivileged account, and will be reused without modification.
+  Apache proxy, SSL and headers modules and an existing Whisper base model were verified.
 
-## Initial setup requiring approval
+## Approved initial setup
 
 Proposed DNS change: add only `A natocheck.eventhacker.de -> 94.130.7.235`.
 Do not add an AAAA record without verifying a working IPv6 path. Back up the DNS
@@ -23,8 +23,8 @@ Recommended layout:
 
 - Checkout: `/var/www/natocheck`, release branch `main`.
 - Dedicated non-login service account: `natocheck`.
-- Server-only Python environment: `/var/www/natocheck/xvx-venv/`.
-  This is a deployment environment on `ai`, not a second XvX workspace environment.
+- Existing server interpreter: `/home/magnetix/projects/xvx/xvx-venv/bin/python`.
+  The service reads this runtime without modifying it; no new environment is created.
 - State: `/var/lib/natocheck`, owned by the service account, mode `0700`.
 - Existing/provisioned Whisper base model: `/var/lib/natocheck/models/base.pt`.
   Install an approved model separately; do not download at request time.
@@ -32,9 +32,10 @@ Recommended layout:
 
 An authorized administrator must first verify the proposed paths and port,
 Python/ffmpeg compatibility, model and module availability, and repository read
-access. Install locked Python requirements into the server environment. Keep
+access. Verify the existing runtime against the pinned Whisper requirement. Do not modify
+shared dependencies automatically. Keep
 service source read-only to the service account and writable only to the release
-operator. Do not reuse or modify another application's environment.
+operator. Do not modify the shared XvX environment during deployment.
 
 The committed templates are `natocheck.service` and
 `natocheck.eventhacker.de.conf`. Install them from the reviewed checkout rather
@@ -51,11 +52,9 @@ certificate through the existing ACME workflow, then enable the committed HTTPS
 host. Validate Apache configuration before reload. Install and enable the service
 only after its account, paths, environment and model are ready.
 
-The existing SSH account needs a narrowly scoped authorized service restart
-mechanism before the release script can run unattended. The script invokes
-`systemctl restart natocheck`; it does not assume sudo. An authorized operator
-may supply `NATOCHECK_SSH_TARGET` for an account already permitted to perform the
-release. Do not change privilege policy or enable root login implicitly.
+The release uses the already available, verified `root@ai` key-based access.
+It does not assume sudo or enable new root access. `NATOCHECK_SSH_TARGET` can
+select another account already authorized to perform the release.
 
 ## Subsequent releases
 
