@@ -6,21 +6,16 @@ A small NATO spelling game by Eventhacker. Play at:
 ## Play
 
 - Free training: single letters, words or four-letter sequences.
-- Challenge: ten rounds, three lives and 30 seconds per round. Rounds 1–3 use
-  letters, 4–6 use sequences and 7–10 use words.
-- Speak the NATO codewords, stop recording and inspect the recognized text and
-  comparison. In the challenge, confirm the result before points or lives change.
-- Recognition and review time do not consume the round timer. A recognition
-  failure produces no graded answer; retry within the remaining speaking time.
-- A correct unassisted round earns 100 points, plus 20 per preceding consecutive
-  correct round and two per remaining whole second. Wrong answers or idle timeouts
-  cost one life and reset the streak.
-- The **NATO-Alphabet einblenden** button opens the reference table. Using it
-  during a challenge round earns 50 points for a correct answer and no bonuses.
-  Closing the table does not remove that round's assisted flag.
-- Edit recognition mistakes in free training, or practice with typed answers.
-  Manual answers are labeled and are unavailable during a challenge.
-- The highscore stays in browser local storage. There is no account or leaderboard.
+- Challenge: click **Spiel starten**, allow the microphone and follow a three-second
+  countdown. Ten letters appear one after another at the selected pace: 1, 2, 3
+  or 5 seconds per letter. The default is 3 seconds.
+- One continuous recording covers the entire challenge. Recording stops after
+  the tenth letter's time slot; only then is the audio transcribed and compared.
+- The prominent final result shows correct letters out of ten and a percentage,
+  followed by the complete transcript and per-letter comparison.
+- Aborting a challenge discards the recording without grading it.
+- Free training supports manual recording, typed answers and transcript correction.
+- The **NATO-Alphabet einblenden** button opens the reference table.
 
 The comparison checks codewords and their order, including missing and extra
 words. It accepts explicit transcription variants such as Alpha/Alfa,
@@ -83,9 +78,9 @@ node --check trainer.js
 
 Tests include ordered comparison, spelling variants, wrong/missing/extra words,
 strict recognition confidence, recording cleanup, isolated transcription results,
-busy handling, HTTP exercise flow and origin checks. Browser checks cover desktop
-and mobile layouts, the ten-round game, increasing difficulty, score confirmation,
-three lives, timeout, paused recognition time and reference-table scoring.
+busy handling, HTTP exercise flow, origin checks and a ten-letter challenge task.
+For browser acceptance, verify the countdown, each selected pace, one continuous
+recording, cancellation, delayed transcription and the prominent final result.
 
 ## Open source and contributions
 

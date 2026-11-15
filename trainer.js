@@ -29,10 +29,10 @@ async function request(path, body) {
 function setPhase(value, status) {
     phase = value;
     const locked = !['ready', 'review'].includes(value);
-    el('record').disabled = locked || !task || (game.active && (game.graded || game.remaining <= 0));
+    el('record').disabled = locked || !task || game.active;
     el('record').setAttribute('aria-pressed', String(value === 'recording'));
     el('recordStop').disabled = value !== 'recording';
-    el('next').disabled = locked || !task || (game.active && !game.graded);
+    el('next').disabled = locked || !task || game.active;
     el('reveal').disabled = locked || !task || game.active;
     el('manualCheck').disabled = locked || !task || game.active;
     el('checkText').disabled = locked || !task;
@@ -41,7 +41,10 @@ function setPhase(value, status) {
     document.querySelectorAll('[data-mode]').forEach(button => { button.disabled = locked || game.active; });
     el('gameStart').disabled = locked || game.active;
     el('gameEnd').disabled = locked;
-    el('gameConfirm').hidden = !game.active || !game.pending || game.graded;
+    el('gameConfirm').hidden = true;
+    el('speed').disabled = locked || game.active;
+    el('gameEnd').disabled = !game.active || !['recording'].includes(value);
+    el('recordStop').disabled = value !== 'recording' || game.active;
     el('confirmRound').disabled = locked || !game.pending || game.graded;
     el('correction').hidden = game.active;
     document.querySelector('.manual').hidden = game.active;
@@ -50,21 +53,18 @@ function setPhase(value, status) {
 }
 
 function fail(error) {
+    if (game.active) {
+        game.active = false;
+        clearInterval(clock);
+        clearTimeout(timer);
+        renderGame();
+    }
     el('error').textContent = error.message;
     setPhase('ready', 'Keine Wertung. Bitte erneut versuchen.');
 }
 
 async function nextTask() {
-    if (game.active) {
-        if (game.round && !game.graded) return;
-        game.round += 1;
-        game.graded = false;
-        game.pending = null;
-        game.remaining = 30;
-        game.hinted = !el('alphabetPanel').hidden;
-        mode = game.round <= 3 ? 'letter' : game.round <= 6 ? 'sequence' : 'word';
-        renderGame();
-    }
+    if (game.active) return;
     setPhase('loading', 'Neue Aufgabe …');
     el('error').textContent = '';
     try {
@@ -126,7 +126,7 @@ async function checkAnswer(text, source) {
             return row;
         }));
         el('expected').textContent = 'Lösung: ' + result.expected.join(' · ');
-        if (game.active) game.pending = result;
+        if (game.active) finishGame(result);
         setPhase('review', 'Prüfung abgeschlossen. Wiederholen oder nächste Aufgabe wählen.');
     } catch (error) { fail(error); }
 }
@@ -223,6 +223,10 @@ async function startRecording() {
             } catch (error) { fail(error); }
         };
         recorder.start(1000);
+        if (game.active) {
+            runChallenge();
+            return;
+        }
         setPhase('recording', 'Aufnahme läuft · 0 / 60 Sekunden');
         const started = Date.now();
         clock = setInterval(() => {
@@ -251,85 +255,80 @@ el('checkText').onclick = () => checkAnswer(el('transcript').value, 'MANUELL KOR
 
 function renderGame() {
     el('gameBoard').hidden = !game.active;
+    document.querySelector('.modes').hidden = game.active;
+    document.querySelector('.task-actions').hidden = game.active;
+    document.querySelector('.record-actions').hidden = game.active;
     if (!game.active) return;
-    el('gameHelp').hidden = !game.hinted;
     el('gameRound').textContent = game.round + ' / 10';
-    el('gamePoints').textContent = game.points;
-    el('gameStreak').textContent = game.streak ? game.streak + ' ×' : '—';
-    el('gameLives').textContent = '♥ '.repeat(game.lives) + '♡ '.repeat(3 - game.lives);
-    el('gameTime').textContent = Math.ceil(game.remaining) + ' s';
-    el('gameClock').value = game.remaining;
-    el('gameBoard').dataset.urgent = String(game.remaining <= 10 && !game.graded);
+    el('gameTime').textContent = (game.interval / 1000) + ' s / Buchstabe';
 }
 
 async function startGame() {
-    game = {active: true, graded: false, pending: null, round: 0, points: 0,
-        streak: 0, bestStreak: 0, lives: 3, remaining: 30, correct: 0};
+    if (game.active || !['ready', 'review'].includes(phase)) return;
+    game = {active: true, round: 0, interval: Number(el('speed').value)};
     el('gameSummary').hidden = true;
-    await nextTask();
-}
-
-function finishGame(title) {
-    game.active = false;
-    game.pending = null;
-    let best = game.points;
+    el('solution').hidden = true;
+    el('alphabetPanel').hidden = true;
+    el('alphabetToggle').setAttribute('aria-expanded', 'false');
+    el('alphabetToggle').textContent = 'NATO-Alphabet einblenden';
+    renderGame();
+    setPhase('loading', 'Zehn Buchstaben werden vorbereitet …');
     try {
-        best = Math.max(Number(localStorage.getItem('natocheck.highscore')) || 0, game.points);
-        localStorage.setItem('natocheck.highscore', String(best));
-    } catch (_) { /* Training remains usable when local storage is unavailable. */ }
-    el('gameSummaryTitle').textContent = title + ' · ' + game.points + ' Punkte';
-    el('gameSummaryText').textContent = `${game.correct} richtige Runden · Beste Serie: ${game.bestStreak} · Dein lokaler Highscore: ${best}`;
+        task = await request('/api/trainer/task', {mode: 'challenge'});
+        await startRecording();
+    } catch (error) { fail(error); }
+}
+
+function runChallenge() {
+    const started = performance.now();
+    const countdown = 3000;
+    el('gameClock').max = game.interval;
+    setPhase('recording', 'Mach dich bereit. Sprich ab dem ersten Buchstaben ein Codewort pro Takt.');
+    el('prompt').scrollIntoView({behavior: 'smooth', block: 'center'});
+    function tick() {
+        const elapsed = performance.now() - started - countdown;
+        if (elapsed < 0) {
+            el('prompt').textContent = Math.ceil(-elapsed / 1000);
+            return;
+        }
+        const index = Math.floor(elapsed / game.interval);
+        if (index >= 10) {
+            clearInterval(clock);
+            el('prompt').textContent = '✓';
+            el('recordStatus').textContent = 'Alle zehn Buchstaben aufgenommen. Audio wird ausgewertet …';
+            stopRecording();
+            return;
+        }
+        game.round = index + 1;
+        el('prompt').textContent = task.prompt[index];
+        el('recordStatus').textContent = `Buchstabe ${index + 1} von 10 · Jetzt das Codewort sprechen!`;
+        el('gameClock').value = game.interval - elapsed % game.interval;
+        renderGame();
+    }
+    tick();
+    clock = setInterval(tick, 40);
+}
+
+function finishGame(result) {
+    game.active = false;
+    el('gameSummaryTitle').textContent = `${result.correct} von 10 richtig · ${result.score} %`;
+    el('gameSummaryText').textContent = result.passed
+        ? 'Challenge geschafft! Alle zehn Codewörter in der richtigen Reihenfolge.'
+        : 'Deine Aufnahme ist ausgewertet. Unten siehst du den Vergleich für jeden Buchstaben.';
     el('gameSummary').hidden = false;
-    el('gameConfirm').hidden = true;
     renderGame();
-    setPhase('review', 'Challenge beendet. Noch einmal spielen oder frei weiterüben.');
+    el('gameSummary').scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
-function gradeRound() {
-    if (!game.active || game.graded || !game.pending) return;
-    game.graded = true;
-    if (game.pending.passed) {
-        game.streak = game.hinted ? 0 : game.streak + 1;
-        game.bestStreak = Math.max(game.bestStreak, game.streak);
-        game.correct += 1;
-        const points = game.hinted ? 50 : 100 + (game.streak - 1) * 20 + Math.floor(game.remaining) * 2;
-        game.points += points;
-        el('verdict').textContent += ' +' + points + ' Punkte';
-    } else {
-        game.lives -= 1;
-        game.streak = 0;
-    }
-    game.pending = null;
+function cancelGame() {
+    cancelling = true;
+    if (recorder && recorder.state === 'recording') recorder.stop();
+    releaseStream();
+    game.active = false;
     renderGame();
-    if (!game.lives || game.round === 10) {
-        finishGame(!game.lives ? 'Game over' : 'Challenge geschafft!');
-    } else {
-        setPhase('review', 'Runde gewertet. Weiter mit der nächsten Aufgabe.');
-    }
+    setPhase('ready', 'Spiel abgebrochen. Keine Auswertung.');
+    nextTask();
 }
-
-function expireRound() {
-    game.remaining = 0;
-    if (phase === 'recording') {
-        stopRecording();
-        return;
-    }
-    game.pending = {passed: false};
-    el('answer').hidden = true;
-    el('solution').textContent = 'Zeit abgelaufen. Lösung: ' + [...task.prompt].map(c => alphabet[c]).join(' · ');
-    el('solution').hidden = false;
-    gradeRound();
-}
-
-setInterval(() => {
-    const now = performance.now();
-    const elapsed = (now - lastTick) / 1000;
-    lastTick = now;
-    if (!game.active || game.graded || !['ready', 'recording'].includes(phase)) return;
-    game.remaining = Math.max(0, game.remaining - elapsed);
-    renderGame();
-    if (!game.remaining) expireRound();
-}, 100);
 
 function toggleAlphabet() {
     const visible = el('alphabetPanel').hidden;
@@ -346,8 +345,7 @@ el('alphabetToggle').onclick = toggleAlphabet;
 el('alphabetClose').onclick = () => { toggleAlphabet(); el('alphabetToggle').focus(); };
 el('gameStart').onclick = startGame;
 el('playAgain').onclick = startGame;
-el('gameEnd').onclick = () => finishGame('Spiel beendet');
-el('confirmRound').onclick = gradeRound;
+el('gameEnd').onclick = cancelGame;
 window.addEventListener('pagehide', () => {
     cancelling = true;
     clearTimeout(pollTimer);

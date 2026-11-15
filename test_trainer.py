@@ -4,6 +4,15 @@ from trainer import ALPHABET, Trainer, compare, spoken_tokens
 
 
 class TrainerTests(unittest.TestCase):
+    def test_challenge_records_ten_letters_as_one_task(self):
+        trainer = Trainer()
+        task = trainer.new('challenge')
+        self.assertEqual(len(task['prompt']), 10)
+        answer = ' '.join(ALPHABET[letter] for letter in task['prompt'])
+        result = trainer.check(task['id'], answer)
+        self.assertTrue(result['passed'])
+        self.assertEqual(result['total'], 10)
+
     def test_complete_alphabet_is_accepted_in_order(self):
         result = compare('ABCDEFGHIJKLMNOPQRSTUVWXYZ', ' '.join(ALPHABET.values()))
         self.assertTrue(result['passed'])

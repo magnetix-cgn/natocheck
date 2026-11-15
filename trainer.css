@@ -6,3 +6,10 @@
 #alphabetToggle{margin-left:auto;font-size:12px;font-weight:400;background:transparent;color:var(--mint)}#alphabetPanel{margin:0 0 20px}@media(max-width:650px){.brand{flex-wrap:wrap}.brand img{margin-left:auto}#alphabetToggle{order:3;width:100%;margin:0}.game-board .tag{width:100%;white-space:normal}}
 
 .open-source{margin-top:20px}.open-source p{max-width:85ch}.open-source p[lang=en]{font-size:13px}.open-source a{font-size:13px}
+
+/* Emphasize the complete challenge result and the paced prompt. */
+.game-summary { border: 3px solid var(--accent, #b9f75b); text-align: center; padding: 2.5rem; }
+.game-summary h2 { font-size: clamp(2rem, 6vw, 4rem); line-height: 1.15; }
+.game-launch select { margin-top: .5rem; min-width: 180px; }
+.game-board:not([hidden]) ~ .workspace .prompt { font-size: clamp(6rem, 20vw, 12rem); }
+@media (max-width: 700px) { .game-launch { flex-wrap: wrap; } }

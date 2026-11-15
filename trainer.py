@@ -88,6 +88,8 @@ class Trainer:
             prompt = secrets.choice(string.ascii_uppercase)
         elif mode == 'word':
             prompt = secrets.choice(WORDS)
+        elif mode == 'challenge':
+            prompt = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(10))
         elif mode == 'sequence':
             prompt = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(4))
         else:
