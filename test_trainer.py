@@ -1,5 +1,6 @@
 """Behavior checks for spelling exercises, aliases and ordered comparison."""
 import unittest
+from unittest.mock import patch
 from trainer import ALPHABET, Trainer, compare, spoken_tokens
 
 
@@ -12,6 +13,23 @@ class TrainerTests(unittest.TestCase):
         result = trainer.check(task['id'], answer)
         self.assertTrue(result['passed'])
         self.assertEqual(result['total'], 10)
+
+    def test_sequences_exclude_only_the_immediate_previous_letter(self):
+        for mode, length in (('sequence', 4), ('challenge', 10)):
+            choices = []
+            def choose_first(candidates):
+                choices.append(candidates)
+                return candidates[0]
+            with self.subTest(mode=mode), patch('trainer.secrets.choice', side_effect=choose_first):
+                prompt = Trainer().new(mode)['prompt']
+                self.assertEqual(prompt, ('AB' * 5)[:length])
+                self.assertEqual(len(choices[0]), 26)
+                for previous, candidates in zip(prompt, choices[1:]):
+                    self.assertNotIn(previous, candidates)
+                    self.assertEqual(len(candidates), 25)
+            for _ in range(100):
+                prompt = Trainer().new(mode)['prompt']
+                self.assertTrue(all(a != b for a, b in zip(prompt, prompt[1:])))
 
     def test_complete_alphabet_is_accepted_in_order(self):
         result = compare('ABCDEFGHIJKLMNOPQRSTUVWXYZ', ' '.join(ALPHABET.values()))

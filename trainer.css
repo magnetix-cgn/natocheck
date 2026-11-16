@@ -32,3 +32,7 @@
 .playing .prompt { text-shadow: 0 0 65px #00aeef33; }
 body[data-phase="uploading"].playing .workspace, body[data-phase="transcribing"].playing .workspace, body[data-phase="checking"].playing .workspace { display: none; }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+.answer { margin: 20px 0; scroll-margin-top: 16px; }
+.brand { flex-wrap: wrap; }
+.app-version { white-space: nowrap; }

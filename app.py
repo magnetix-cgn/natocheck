@@ -1,6 +1,7 @@
 """Serve NatoCheck and local Whisper recognition without a Codex connection."""
 import argparse
 import collections
+from html import escape
 import json
 import logging
 import os
@@ -16,6 +17,19 @@ from trainer import ALPHABET, Trainer
 from recognition_worker import RecognitionWorker
 
 BASE = Path(__file__).resolve().parent
+
+
+def application_version():
+    """Use the repository release identity as the application version."""
+    try:
+        return subprocess.check_output(
+            ['git', '-c', f'safe.directory={BASE}', 'describe', '--tags', '--always', '--dirty'], cwd=BASE,
+            text=True, stderr=subprocess.DEVNULL, timeout=5).strip()
+    except (OSError, subprocess.SubprocessError):
+        return 'unknown'
+
+
+APP_VERSION = application_version()
 MAX_UPLOAD = 12 * 1024 * 1024
 FORMATS = {'audio/webm': ('.webm', b'\x1aE\xdf\xa3'),
            'audio/ogg': ('.ogg', b'OggS'), 'audio/mp4': ('.m4a', b'ftyp')}
@@ -125,7 +139,10 @@ def handler(app, hosts):
                      '/assets/eventhacker-logo-white.webp': ('assets/eventhacker-logo-white.webp', 'image/webp')}
             if path in files:
                 filename, mime = files[path]
-                return self.send(200, (BASE / filename).read_bytes(), mime)
+                content = (BASE / filename).read_bytes()
+                if filename == 'trainer.html':
+                    content = content.replace(b'{{APP_VERSION}}', escape(APP_VERSION).encode('utf-8'))
+                return self.send(200, content, mime)
             if path == '/api/trainer/alphabet':
                 return self.send(200, ALPHABET)
             if re.fullmatch(r'/api/transcriptions/[a-f0-9]{32}', path):

@@ -11,6 +11,7 @@
 <main>
     <header class="brand">
         <a class="wordmark" href="/" aria-label="NatoCheck Startseite">nato<span>check</span><span class="dot">.</span></a>
+        <span class="tag app-version">Version {{APP_VERSION}}</span>
         <button type="button" id="alphabetToggle" aria-expanded="false" aria-controls="alphabetPanel">NATO-Alphabet einblenden</button>
         <img src="/assets/eventhacker-logo-white.webp" width="560" height="209" alt="Eventhacker Köln">
     </header>
@@ -31,6 +32,15 @@
     </section>
 
     <section id="gameProcessing" class="card game-processing" role="status" hidden><span class="spinner" aria-hidden="true"></span><h2>Auswertung läuft …</h2><p>Alle zehn Buchstaben sind aufgenommen. Deine Codewörter werden jetzt gemeinsam erkannt und verglichen.</p></section>
+    <section id="answer" class="card answer" aria-labelledby="answer-title" hidden>
+        <div class="section-head"><div><span class="eyebrow">02 / CHECKEN</span><h2 id="answer-title" tabindex="-1">Das ist angekommen</h2></div><span id="answerSource" class="tag">SPRACHERKENNUNG</span></div>
+        <p id="rawText" class="raw-text"></p>
+        <div id="verdict" class="verdict" role="status"></div>
+        <div class="table-scroll"><table><thead><tr><th>Buchstabe</th><th>Erwartet</th><th>Erkannt</th><th>Check</th></tr></thead><tbody id="feedback"></tbody></table></div>
+        <p id="expected" class="solution"></p>
+        <div id="gameConfirm" class="game-confirm" hidden><p>Passt der erkannte Text zu deiner Antwort? Bestätige die Wertung oder nimm bei einem Erkennungsfehler erneut auf.</p><button type="button" id="confirmRound" class="primary">Ergebnis werten →</button></div>
+        <details id="correction"><summary>Erkennung falsch? Text korrigieren</summary><label for="transcript">Was du tatsächlich gesagt hast</label><textarea id="transcript" maxlength="2000" placeholder="Zum Beispiel: Alfa Bravo Charlie"></textarea><button type="button" id="checkText">Korrigierten Text prüfen</button><p class="small">Die erneute Prüfung wird als manuell korrigiert markiert.</p></details>
+    </section>
     <div class="workspace">
         <section class="card exercise" aria-labelledby="exercise-title">
             <div class="section-head"><h2 id="exercise-title">Dein Spielfeld</h2><span class="tag">TRAINING / JUST FOR FUN</span></div>
@@ -57,15 +67,6 @@
             <p class="small">Aufnahme nur nach deinem Klick, maximal 60 Sekunden. Die Aufnahme geht an diesen App-Server und wird nach der Erkennung gelöscht. Kein externer Sprachdienst.</p>
         </aside>
     </div>
-    <section id="answer" class="card answer" aria-labelledby="answer-title" hidden>
-        <div class="section-head"><div><span class="eyebrow">02 / CHECKEN</span><h2 id="answer-title">Das ist angekommen</h2></div><span id="answerSource" class="tag">SPRACHERKENNUNG</span></div>
-        <p id="rawText" class="raw-text"></p>
-        <div id="verdict" class="verdict" role="status"></div>
-        <div class="table-scroll"><table><thead><tr><th>Buchstabe</th><th>Erwartet</th><th>Erkannt</th><th>Check</th></tr></thead><tbody id="feedback"></tbody></table></div>
-        <p id="expected" class="solution"></p>
-        <div id="gameConfirm" class="game-confirm" hidden><p>Passt der erkannte Text zu deiner Antwort? Bestätige die Wertung oder nimm bei einem Erkennungsfehler erneut auf.</p><button type="button" id="confirmRound" class="primary">Ergebnis werten →</button></div>
-        <details id="correction"><summary>Erkennung falsch? Text korrigieren</summary><label for="transcript">Was du tatsächlich gesagt hast</label><textarea id="transcript" maxlength="2000" placeholder="Zum Beispiel: Alfa Bravo Charlie"></textarea><button type="button" id="checkText">Korrigierten Text prüfen</button><p class="small">Die erneute Prüfung wird als manuell korrigiert markiert.</p></details>
-    </section>
     <section class="card manual"><details><summary>Ohne Mikrofon üben</summary><p>Du kannst die Codewörter auch eingeben und prüfen lassen.</p><label for="manualText">Deine Antwort</label><textarea id="manualText" maxlength="2000" placeholder="NATO-Codewörter eingeben …"></textarea><button type="button" id="manualCheck" disabled>Textantwort prüfen</button></details></section>
 
     <section class="card open-source" aria-labelledby="support-title"><div class="section-head"><h2 id="support-title">NatoCheck unterstützen ❤️</h2><span class="tag">FREIWILLIG</span></div><p>NatoCheck bleibt kostenlos und Open Source. Server und Spracherkennung werden privat finanziert und stoßen manchmal an ihre Grenzen. Mit einem freiwilligen Beitrag hilfst du, die Infrastruktur zu verbessern.</p><div class="record-actions"><a href="https://www.paypal.com/pool/9urAHPO9xM?sr=wccr" target="_blank" rel="noopener noreferrer">Per PayPal unterstützen ↗</a></div></section>

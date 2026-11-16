@@ -131,6 +131,10 @@ async function checkAnswer(text, source) {
         }));
         el('expected').textContent = 'Lösung: ' + result.expected.join(' · ');
         if (game.active) finishGame(result);
+        else {
+            el('answer-title').focus({preventScroll: true});
+            el('answer').scrollIntoView({behavior: 'instant', block: 'start'});
+        }
         setPhase('review', 'Prüfung abgeschlossen. Wiederholen oder nächste Aufgabe wählen.');
     } catch (error) { fail(error); }
 }

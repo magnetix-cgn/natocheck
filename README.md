@@ -78,6 +78,11 @@ be rejected rather than silently dropping answer words. This conservative
 filter can reject valid speech. A human microphone/accent check is still needed;
 synthetic fixtures do not prove accuracy for all speakers.
 
+The header displays the current Git release identity (`git describe --tags --always`),
+including a dirty marker for local changes. Random sequences and challenges never
+repeat a letter immediately; repeats with an intervening letter remain possible.
+Training results appear directly above the input area and scroll into view after checking.
+
 ## Check
 
 ```sh

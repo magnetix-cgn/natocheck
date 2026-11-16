@@ -88,10 +88,12 @@ class Trainer:
             prompt = secrets.choice(string.ascii_uppercase)
         elif mode == 'word':
             prompt = secrets.choice(WORDS)
-        elif mode == 'challenge':
-            prompt = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(10))
-        elif mode == 'sequence':
-            prompt = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(4))
+        elif mode in ('challenge', 'sequence'):
+            letters = []
+            for _ in range(10 if mode == 'challenge' else 4):
+                previous = letters[-1] if letters else ''
+                letters.append(secrets.choice(string.ascii_uppercase.replace(previous, '')))
+            prompt = ''.join(letters)
         else:
             raise ValueError('Choose letter, word or sequence')
         task = dict(id=uuid.uuid4().hex, mode=mode, prompt=prompt)

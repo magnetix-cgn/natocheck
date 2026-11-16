@@ -8,10 +8,16 @@ import threading
 import unittest
 from unittest.mock import patch
 from http.server import ThreadingHTTPServer
-from app import Application, handler
+from app import APP_VERSION, Application, application_version, handler
 
 
 class ApplicationTests(unittest.TestCase):
+    def test_version_uses_git_identity_and_handles_missing_git(self):
+        with patch('app.subprocess.check_output', return_value='v1.2-3-gabcdef0\n'):
+            self.assertEqual(application_version(), 'v1.2-3-gabcdef0')
+        with patch('app.subprocess.check_output', side_effect=FileNotFoundError):
+            self.assertEqual(application_version(), 'unknown')
+
     def test_recordings_require_supported_audio(self):
         with tempfile.TemporaryDirectory() as folder:
             app = Application(Path(folder))
@@ -84,6 +90,9 @@ class ApplicationTests(unittest.TestCase):
                 status, body, mime = request('GET', '/')
                 self.assertEqual(status, 200)
                 self.assertIn(b'NatoCheck', body)
+                self.assertIn(('Version ' + APP_VERSION).encode(), body)
+                self.assertNotIn(b'{{APP_VERSION}}', body)
+                self.assertLess(body.index(b'id="answer"'), body.index(b'class="workspace"'))
                 self.assertIn('text/html', mime)
                 status, body, _ = request('POST', '/api/trainer/task', {'mode': 'word'})
                 self.assertEqual(status, 200)
