@@ -84,7 +84,12 @@ NXDOMAIN answer, independently verify public DNS first, then set
 validation still uses the public hostname. `NATOCHECK_PYTHON` selects an existing local Python; in
 the XvX checkout it defaults to `../../xvx-venv/bin/python`. It serializes releases, restarts
 the service, records revisions and status, and verifies HTTPS and a live exercise.
-It never installs infrastructure, changes DNS, installs dependencies or runs
+When the committed Apache host template changes, the release first requires the
+active configuration to match the previous checkout. It backs up that configuration
+under `.git/`, installs the reviewed template, validates Apache and reloads it.
+A failed configuration test restores the previous configuration. This also enforces
+the 2,000,000-byte request limit at the HTTPS proxy before forwarding uploads.
+It never installs new infrastructure, changes DNS, installs dependencies or runs
 migrations automatically. Preserve unknown changes; never reset or clean them.
 
 If restart or live validation fails after fast-forward, the new code may already
