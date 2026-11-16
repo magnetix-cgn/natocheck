@@ -294,9 +294,10 @@ el('checkText').onclick = () => checkAnswer(el('transcript').value, 'MANUELL KOR
 function renderGame() {
     document.body.classList.toggle('playing', game.active);
     el('gameBoard').hidden = !game.active;
-    document.querySelector('.modes').hidden = game.active;
-    document.querySelector('.task-actions').hidden = game.active;
-    document.querySelector('.record-actions').hidden = game.active;
+    el('challengeWorkspace').hidden = !game.active;
+    document.querySelector('.modes').hidden = true;
+    document.querySelector('.task-actions').hidden = true;
+    document.querySelector('.record-actions').hidden = true;
     if (!game.active) return;
     uiText('gameRound', game.round + ' / 10');
     uiText('gameTime', (game.interval / 1000) + ' s / Buchstabe');
