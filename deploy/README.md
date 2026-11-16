@@ -104,3 +104,24 @@ answer comparison, and an actual microphone in Chromium. Check that the browser
 permission prompt is shown only after clicking record, Whisper does not consume
 the game timer and transient recordings are removed. Send the accurate completion
 notification through the localmail skill after live verification.
+
+## Mandatory post-deployment speech acceptance
+
+Every release runs `scripts/check-live-speech.py` against the public HTTPS API.
+It creates a fresh four-letter exercise, generates the expected English codewords
+with the existing local XvX TTS skill, encodes a 128 kbit/s WebM, validates it,
+uploads it without a language parameter, waits for real Whisper recognition and
+requires a 100% ordered comparison. No recognition response is mocked. A failure
+makes the deployment command fail; do not report that release as verified.
+The deployment log distinguishes `restarted`, `live_failed` and `live_verified`.
+Synthetic speech verifies the processing pipeline, not every human microphone/accent.
+
+The release workstation needs its existing eSpeak and FFmpeg installations and
+`../../skills-available/tts/speak.py`. Set `NATOCHECK_TTS_SCRIPT` to an existing
+TTS skill path when needed. No tool, model or dependency is installed implicitly.
+Generated speech and JSON reports remain in the TTS skill's `out.user.magnetics/`,
+outside this repository. To rerun acceptance without deploying:
+
+```sh
+../../xvx-venv/bin/python scripts/check-live-speech.py
+```
