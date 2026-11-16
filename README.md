@@ -92,9 +92,11 @@ A 300-second job timeout terminates the worker process group; the next request
 starts a fresh worker. Audio conversion and strict recognition checks are unchanged.
 The result displays server recognition time (excluding upload and browser polling).
 
-Uncertain, non-speech and repetitive Whisper segments cause the whole answer to
-be rejected rather than silently dropping answer words. This conservative
-filter can reject valid speech. A human microphone/accent check is still needed;
+Uncertain Whisper segments produce an ungraded review state with the complete
+transcript (up to 2,000 characters), rather than silently dropping words or
+rejecting an otherwise readable recording. No score or expected answer is shown
+until the user explicitly checks the corrected/confirmed text. The result is then
+marked as manually corrected. Empty, oversized and unusable transcripts remain errors. A human microphone/accent check is still needed;
 synthetic fixtures do not prove accuracy for all speakers.
 
 The header displays the current Git release identity (`git describe --tags --always`),

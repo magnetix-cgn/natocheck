@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 from trainer import ALPHABET, Trainer
 from recognition_worker import RecognitionWorker
-from recording import MAX_UPLOAD_BYTES
+from recording import MAX_UPLOAD_BYTES, UncertainSpeechError
 
 BASE = Path(__file__).resolve().parent
 
@@ -88,6 +88,9 @@ class Application:
             if not text:
                 raise ValueError('No reliable speech recognized')
             state = dict(id=job_id, state='done', text=text, error='', elapsed_seconds=elapsed)
+        except UncertainSpeechError as error:
+            LOG.info('recognition_requires_review job=%s', job_id)
+            state = dict(id=job_id, state='review', text=error.text, error=str(error))
         except (ValueError, OSError, RuntimeError, subprocess.SubprocessError) as error:
             state = dict(id=job_id, state='error', text='', error=str(error))
         finally:

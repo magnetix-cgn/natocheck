@@ -30,23 +30,36 @@ MIN_AVERAGE_LOG_PROBABILITY = -1.0
 MAX_COMPRESSION_RATIO = 2.4
 
 
+class UncertainSpeechError(ValueError):
+    """Carry an ungraded transcript for explicit human review."""
+    def __init__(self, text):
+        super().__init__('Uncertain speech segment; review the transcript before grading')
+        self.text = text
+
+
 def recognized_text(result, strict=False):
     """Discard uncertain, non-speech and repetitive decoding segments."""
     accepted = []
+    review_text = ' '.join(str(segment.get('text', '')).strip()
+                           for segment in result.get('segments', [])).strip()
+    def uncertain():
+        if 0 < len(review_text) <= 2000:
+            raise UncertainSpeechError(review_text)
+        raise ValueError('No usable transcript; please record again')
     for segment in result.get('segments', []):
         metrics = [segment.get('no_speech_prob'), segment.get('avg_logprob'),
                    segment.get('compression_ratio')]
         if any(not isinstance(value, (int, float)) or not math.isfinite(value)
                for value in metrics):
             if strict:
-                raise ValueError("Uncertain speech segment; please record again")
+                uncertain()
             continue
         no_speech, log_probability, compression = metrics
         if (no_speech >= MAX_NO_SPEECH_PROBABILITY
                 or log_probability < MIN_AVERAGE_LOG_PROBABILITY
                 or compression > MAX_COMPRESSION_RATIO):
             if strict and str(segment.get("text", "")).strip():
-                raise ValueError("Uncertain speech segment; please record again")
+                uncertain()
             continue
         text = str(segment.get('text', '')).strip()
         if text:
@@ -83,6 +96,8 @@ def serve_worker():
             with redirect_stdout(sys.stderr):
                 transcribe(Path(job['source']), job['language'], Path(job['output']), strict=True)
             result = {'ok': True}
+        except UncertainSpeechError as error:
+            result = {'ok': False, 'review_text': error.text, 'error': str(error)}
         except Exception as error:
             result = {'ok': False, 'error': str(error)}
         print(json.dumps(result), flush=True)

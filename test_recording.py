@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from recording import MAX_UPLOAD_BYTES, recognized_text, transcribe, validate_recording
+from recording import UncertainSpeechError, MAX_UPLOAD_BYTES, recognized_text, transcribe, validate_recording
 
 
 def segment(text='Hallo Welt', **metrics):
@@ -36,6 +36,12 @@ class RecognitionTests(unittest.TestCase):
             recognized_text({'segments': [segment('Alfa'),
                             segment('Beta', avg_logprob=-1.5)]}, strict=True)
         self.assertEqual(recognized_text({'segments': [segment('Alfa')]}, strict=True), 'Alfa')
+
+    def test_uncertain_review_preserves_all_words_without_grading(self):
+        with self.assertRaises(UncertainSpeechError) as raised:
+            recognized_text({'segments': [segment('Alfa'),
+                             segment('Beta', avg_logprob=-1.5), segment('Charlie')]}, strict=True)
+        self.assertEqual(raised.exception.text, 'Alfa Beta Charlie')
 
     def test_requires_segment_confidence_and_nonempty_text(self):
         for result in ({}, {'segments': [{'text': 'Unknown confidence'}]},

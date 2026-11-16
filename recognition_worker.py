@@ -9,6 +9,8 @@ import sys
 import threading
 import time
 
+from recording import UncertainSpeechError
+
 
 class RecognitionWorker:
     def __init__(self, timeout=300):
@@ -57,6 +59,8 @@ class RecognitionWorker:
             except (OSError, ValueError, RuntimeError, TimeoutError):
                 self.close()
                 raise
+            if result.get('review_text'):
+                raise UncertainSpeechError(result['review_text'])
             if not result.get('ok'):
                 raise ValueError(result.get('error', 'Speech recognition failed'))
             return round(time.monotonic() - started, 2)

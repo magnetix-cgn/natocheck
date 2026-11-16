@@ -8,6 +8,7 @@ import threading
 import unittest
 from unittest.mock import patch
 from http.server import ThreadingHTTPServer
+from recording import UncertainSpeechError
 from app import MAX_UPLOAD, APP_VERSION, Application, application_version, handler
 
 
@@ -44,6 +45,22 @@ class ApplicationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 app.status('unknown')
             self.assertFalse(list(Path(folder).iterdir()))
+            self.assertTrue(app.worker.acquire(blocking=False))
+            app.worker.release()
+
+    def test_uncertain_transcript_requires_review_and_cleans_audio(self):
+        with tempfile.TemporaryDirectory() as folder:
+            app = Application(Path(folder))
+            source = Path(folder) / 'recording.webm'
+            source.write_bytes(b'example')
+            app.worker.acquire()
+            with patch.object(app.recognizer, 'transcribe', side_effect=UncertainSpeechError('Alfa Beta')):
+                app.transcribe('review', source, 'en')
+            job = app.status('review')
+            self.assertEqual(job['state'], 'review')
+            self.assertEqual(job['text'], 'Alfa Beta')
+            self.assertNotIn('score', job)
+            self.assertFalse(source.exists())
             self.assertTrue(app.worker.acquire(blocking=False))
             app.worker.release()
 

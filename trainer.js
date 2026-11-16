@@ -181,6 +181,27 @@ async function pollTranscription() {
             }
             return;
         }
+        if (t.state === 'review') {
+            pendingJob = null;
+            game.active = false;
+            renderGame();
+            el('gameSummary').hidden = true;
+            rawTranscript = t.text;
+            correctedTranscript = null;
+            renderTranscript();
+            el('answer').hidden = false;
+            el('transcript').value = t.text;
+            el('feedback').replaceChildren();
+            uiText('answerSource', 'ERKENNUNG UNSICHER');
+            uiText('verdict', 'Noch keine Wertung. Bitte den erkannten Text prüfen.');
+            el('verdict').removeAttribute('data-passed');
+            uiText('expected', '');
+            setPhase('review', 'Aufnahme angekommen. Bitte die unsichere Erkennung prüfen oder erneut aufnehmen.');
+            el('correction').open = true;
+            el('transcript').focus({preventScroll: true});
+            el('answer').scrollIntoView({behavior: 'instant', block: 'start'});
+            return;
+        }
         if (t.state === 'error') {
             const message = t.error === 'Recording is damaged or could not be decoded'
                 ? 'Die Aufnahme konnte nicht gelesen werden. Bitte erneut aufnehmen. Wenn es wieder passiert, die Aufnahme über den Audioplayer sichern und zur Fehlerprüfung bereitstellen.'

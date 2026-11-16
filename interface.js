@@ -2,6 +2,9 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "ERKENNUNG UNSICHER": "UNCERTAIN RECOGNITION",
+    "Noch keine Wertung. Bitte den erkannten Text prüfen.": "Not scored yet. Please review the recognized text.",
+    "Aufnahme angekommen. Bitte die unsichere Erkennung prüfen oder erneut aufnehmen.": "Recording received. Please review the uncertain transcript or record again.",
     "NatoCheck · Buchstabieren. Sprechen. Checken.": "NatoCheck · Spell. Speak. Check.",
     "NatoCheck Startseite": "NatoCheck home",
     "NATO-Alphabet einblenden": "Show NATO alphabet",

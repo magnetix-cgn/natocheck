@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from recognition_worker import RecognitionWorker
-from recording import load_model
+from recording import UncertainSpeechError, load_model
 
 FIXTURE = '''
 import json, pathlib, sys, time
@@ -18,6 +18,9 @@ for line in sys.stdin:
         time.sleep(10)
     if job['language'] == 'crash':
         sys.exit(1)
+    if job['language'] == 'review':
+        print(json.dumps({'ok': False, 'review_text': 'Alfa Beta'}), flush=True)
+        continue
     pathlib.Path(job['output']).write_text('Alfa Bravo')
     print(json.dumps({'ok': True}), flush=True)
 '''
@@ -63,6 +66,14 @@ class WorkerTests(unittest.TestCase):
             self.worker.transcribe(self.source, 'crash', self.target)
         self.worker.transcribe(self.source, 'en', self.target)
         self.assertEqual(self.popen.call_count, 2)
+
+    def test_review_transcript_crosses_worker_boundary_without_restart(self):
+        with self.assertRaises(UncertainSpeechError) as raised:
+            self.worker.transcribe(self.source, 'review', self.target)
+        self.assertEqual(raised.exception.text, 'Alfa Beta')
+        process = self.worker.process
+        self.worker.transcribe(self.source, 'en', self.target)
+        self.assertIs(self.worker.process, process)
 
     def test_model_is_loaded_once(self):
         load_model.cache_clear()
