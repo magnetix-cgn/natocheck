@@ -2,7 +2,7 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
-    "Vermeide Hintergrundgeräusche und teste am besten mit einem Headset, damit die Codewörter zuverlässig erkannt werden.": "Avoid background noise and preferably use a headset to help the app recognize the codewords reliably.",
+    "Bitte achte darauf, Hintergrundgeräusche zu vermeiden. Teste das Spiel am besten mit einem Headset – so funktioniert die Spracherkennung am besten.": "Please avoid background noise. For the best speech recognition results, test the game with a headset.",
     "Bereit für die Challenge. Klicke auf Spiel starten.": "Ready for the challenge. Click Start game.",
     "ERKENNUNG UNSICHER": "UNCERTAIN RECOGNITION",
     "Noch keine Wertung. Bitte den erkannten Text prüfen.": "Not scored yet. Please review the recognized text.",
