@@ -199,7 +199,7 @@ async function startRecording() {
             echoCancellation: true, noiseSuppression: true,
         }});
         const chunks = [];
-        recorder = new MediaRecorder(stream, {mimeType: mime});
+        recorder = new MediaRecorder(stream, {mimeType: mime, audioBitsPerSecond: 128000});
         recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
         recorder.onerror = async event => {
             cancelling = true;
@@ -211,6 +211,7 @@ async function startRecording() {
             try {
                 await releaseRecording();
                 const blob = new Blob(chunks, {type: mime});
+                if (blob.size > 2000000) throw Error('Die Aufnahme überschreitet das Limit von 2 MB. Bitte kürzer aufnehmen.');
                 if (!blob.size) throw Error('Die Aufnahme ist leer.');
                 previewURL = URL.createObjectURL(blob);
                 el('preview').src = previewURL;

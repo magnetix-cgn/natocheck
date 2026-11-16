@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 
 from trainer import ALPHABET, Trainer
 from recognition_worker import RecognitionWorker
+from recording import MAX_UPLOAD_BYTES
 
 BASE = Path(__file__).resolve().parent
 
@@ -30,7 +31,7 @@ def application_version():
 
 
 APP_VERSION = application_version()
-MAX_UPLOAD = 12 * 1024 * 1024
+MAX_UPLOAD = MAX_UPLOAD_BYTES
 FORMATS = {'audio/webm': ('.webm', b'\x1aE\xdf\xa3'),
            'audio/ogg': ('.ogg', b'OggS'), 'audio/mp4': ('.m4a', b'ftyp')}
 LOG = logging.getLogger('natocheck')
@@ -55,7 +56,7 @@ class Application:
         if mime not in FORMATS or language != 'en':
             raise ValueError('Unsupported recording format or language')
         if not 0 < len(data) <= MAX_UPLOAD:
-            raise ValueError('Recording must be between 1 byte and 12 MB')
+            raise ValueError('Recording must be between 1 byte and 2 MB')
         suffix, signature = FORMATS[mime]
         if (data[4:8] if mime == 'audio/mp4' else data[:4]) != signature:
             raise ValueError('Recording content does not match its audio format')
@@ -159,7 +160,12 @@ def handler(app, hosts):
                 path = urlparse(self.path).path
                 mime = self.headers.get('Content-Type', '').split(';')[0]
                 limit = MAX_UPLOAD if path == '/api/transcribe' else 16000
+                if self.headers.get('Transfer-Encoding'):
+                    return self.send(400, {'error': 'Transfer encoding is not supported'})
                 length = int(self.headers.get('Content-Length', '0'))
+                if length > limit:
+                    self.close_connection = True
+                    return self.send(413, {'error': 'Recording upload limit is 2 MB' if path == '/api/transcribe' else 'Request too large'})
                 if not 0 < length <= limit:
                     raise ValueError('Invalid request size')
                 data = self.rfile.read(length)

@@ -69,7 +69,17 @@ jobs and their texts stay only in bounded process memory (up to 100 jobs) until
 eviction or restart; access requires an unguessable job identifier. A browser
 preview remains until the next recording, exercise or page close. No recording
 is sent to an external speech service or a chat. Uploads support WebM, Ogg and MP4,
-up to 12 MB and 60 seconds. Only one CPU transcription runs at a time. A persistent, isolated recognition worker
+up to 2 MB (2,000,000 bytes) and 60 seconds. The browser requests 128 kbit/s
+(about 0.96 MB per minute before container overhead), with room for encoder variation.
+The browser rejects oversized blobs before upload; the server rejects oversized
+Content-Length headers before reading the body (HTTP 413) and checks actual bytes.
+Before Whisper sees an upload, forced local-only container parsing checks exactly
+one supported mono/stereo audio stream (WebM/Ogg Opus or Vorbis, MP4 AAC), followed
+by strict bounded decoding and measured PCM duration. One second of timing tolerance
+is allowed; longer audio is rejected, including WebM without duration metadata.
+Malformed, video-bearing, silent and unsupported recordings are rejected. Uploaded
+files are treated only as audio data, never executed. Parser subprocesses have timeouts;
+this validation is not a malware scanner or a guarantee against decoder vulnerabilities. Only one CPU transcription runs at a time. A persistent, isolated recognition worker
 preloads the base model when the server starts and reuses it across recordings.
 A 300-second job timeout terminates the worker process group; the next request
 starts a fresh worker. Audio conversion and strict recognition checks are unchanged.

@@ -14,6 +14,14 @@ import wave
 from trainer import ALPHABET
 
 
+MAX_UPLOAD_BYTES = 2_000_000
+MAX_RECORDING_SECONDS = 60
+# Allow one second for browser stop scheduling and container timestamp rounding.
+MAX_DECODED_SECONDS = MAX_RECORDING_SECONDS + 1
+INPUT_FORMATS = {'.webm': ('matroska', {'opus', 'vorbis'}),
+                 '.ogg': ('ogg', {'opus', 'vorbis'}),
+                 '.m4a': ('mov', {'aac'})}
+
 MAX_NO_SPEECH_PROBABILITY = 0.6
 MIN_AVERAGE_LOG_PROBABILITY = -1.0
 MAX_COMPRESSION_RATIO = 2.4
@@ -77,27 +85,52 @@ def serve_worker():
         print(json.dumps(result), flush=True)
 
 
-def transcribe(source, language, output, strict=False):
-    if language not in ('de', 'en'):
-        raise ValueError('Only German and English are supported')
-    model_path = configured_model_path()
-    probe = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-                            '-of', 'json', str(source)], capture_output=True, text=True, timeout=20)
-    if probe.returncode:
+def validate_recording(source, wav_path):
+    """Inspect and boundedly decode untrusted audio before speech recognition."""
+    if not 0 < source.stat().st_size <= MAX_UPLOAD_BYTES:
+        raise ValueError('Recording exceeds the 2 MB upload limit or is empty')
+    if source.suffix not in INPUT_FORMATS:
+        raise ValueError('Unsupported recording container')
+    demuxer, codecs = INPUT_FORMATS[source.suffix]
+    input_args = ['-protocol_whitelist', 'file,pipe', '-f', demuxer, '-i', str(source)]
+    probe = subprocess.run(
+        ['ffprobe', '-v', 'error', *input_args, '-show_entries',
+         'format=duration:stream=codec_type,codec_name,channels,sample_rate', '-of', 'json'],
+        capture_output=True, text=True, timeout=20)
+    if probe.returncode or probe.stderr.strip():
         raise ValueError('Invalid or unsupported audio recording')
-    duration = json.loads(probe.stdout).get('format', {}).get('duration')
-    if duration is not None and (not math.isfinite(float(duration)) or float(duration) > 65):
-        raise ValueError('Recording exceeds the 60-second limit')
-    wav_path = output.with_suffix('.wav')
-    conversion = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-i', str(source),
-                                '-t', '65', '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le',
-                                str(wav_path)], capture_output=True, text=True, timeout=30)
-    if conversion.returncode:
-        raise ValueError('Recording could not be converted to WAV')
+    metadata = json.loads(probe.stdout)
+    streams = metadata.get('streams', [])
+    if (len(streams) != 1 or streams[0].get('codec_type') != 'audio'
+            or streams[0].get('codec_name') not in codecs
+            or int(streams[0].get('channels', 0)) not in (1, 2)
+            or not 8000 <= int(streams[0].get('sample_rate', 0)) <= 96000):
+        raise ValueError('Recording must contain one supported mono or stereo audio stream')
+    duration = metadata.get('format', {}).get('duration')
+    if duration is not None and (not math.isfinite(float(duration))
+            or not 0 < float(duration) <= MAX_DECODED_SECONDS):
+        raise ValueError('Recording exceeds the 60-second limit or has invalid duration')
+    conversion = subprocess.run(
+        ['ffmpeg', '-nostdin', '-v', 'error', '-xerror', '-err_detect', 'explode', '-y',
+         *input_args, '-t', str(MAX_DECODED_SECONDS + 1), '-map', '0:a:0',
+         '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le', str(wav_path)],
+        capture_output=True, text=True, timeout=30)
+    if conversion.returncode or conversion.stderr.strip():
+        raise ValueError('Recording is damaged or could not be decoded')
     with wave.open(str(wav_path), 'rb') as wav:
+        if not 0 < wav.getnframes() / wav.getframerate() <= MAX_DECODED_SECONDS:
+            raise ValueError('Recording exceeds the 60-second limit or is empty')
         samples = array('h', wav.readframes(wav.getnframes()))
     if not samples or math.sqrt(sum(s*s for s in samples)/len(samples)) < 80:
         raise ValueError('The recording is silent or too quiet; check the microphone')
+
+
+def transcribe(source, language, output, strict=False):
+    if language not in ('de', 'en'):
+        raise ValueError('Only German and English are supported')
+    wav_path = output.with_suffix('.wav')
+    validate_recording(source, wav_path)
+    model_path = configured_model_path()
     model = load_model(model_path)
     result = model.transcribe(
         str(wav_path), language=language, fp16=False, temperature=0, beam_size=5,

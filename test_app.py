@@ -8,7 +8,7 @@ import threading
 import unittest
 from unittest.mock import patch
 from http.server import ThreadingHTTPServer
-from app import APP_VERSION, Application, application_version, handler
+from app import MAX_UPLOAD, APP_VERSION, Application, application_version, handler
 
 
 class ApplicationTests(unittest.TestCase):
@@ -94,6 +94,9 @@ class ApplicationTests(unittest.TestCase):
                 self.assertNotIn(b'{{APP_VERSION}}', body)
                 self.assertLess(body.index(b'id="answer"'), body.index(b'class="workspace"'))
                 self.assertIn('text/html', mime)
+                with patch.object(app, 'upload') as upload:
+                    self.assertEqual(request('POST', '/api/transcribe', {}, **{'Content-Length': str(MAX_UPLOAD + 1)})[0], 413)
+                    upload.assert_not_called()
                 self.assertNotIn(b'id="language"', body)
                 self.assertNotIn(b'class="card setup"', body)
                 with patch.object(app, 'upload', return_value={'id': 'test'}) as upload:
