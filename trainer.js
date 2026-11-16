@@ -173,7 +173,12 @@ async function pollTranscription() {
             }
             return;
         }
-        if (t.state === 'error') throw Error('Sprache nicht sicher erkannt. ' + t.error);
+        if (t.state === 'error') {
+            const message = t.error === 'Recording is damaged or could not be decoded'
+                ? 'Die Aufnahme konnte nicht gelesen werden. Bitte erneut aufnehmen. Wenn es wieder passiert, die Aufnahme über den Audioplayer sichern und zur Fehlerprüfung bereitstellen.'
+                : 'Auswertung fehlgeschlagen. ' + t.error;
+            throw Error(message);
+        }
         pollTimer = setTimeout(pollTranscription, 800);
     } catch (error) {
         pendingJob = null;

@@ -56,6 +56,17 @@ class UploadValidationTests(unittest.TestCase):
                     self.make_audio(source, codec=codec)
                     validate_recording(source, Path(folder) / 'decoded.wav')
 
+    def test_fragmented_stereo_aac_mp4_decodes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'fragmented.m4a'
+            subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-f', 'lavfi',
+                            '-i', 'sine=frequency=440:sample_rate=44100', '-t', '24',
+                            '-ac', '2', '-c:a', 'aac', '-movflags',
+                            'frag_keyframe+empty_moov+default_base_moof',
+                            '-frag_duration', '1000000', str(source)],
+                           check=True, capture_output=True, timeout=20)
+            validate_recording(source, Path(folder) / 'decoded.wav')
+
     def test_missing_duration_cannot_bypass_decoded_limit(self):
         with tempfile.TemporaryDirectory() as folder:
             source = Path(folder) / 'long.webm'

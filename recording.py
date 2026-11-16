@@ -4,6 +4,7 @@ from contextlib import redirect_stdout
 from functools import lru_cache
 from array import array
 import json
+import logging
 import math
 import os
 from pathlib import Path
@@ -13,6 +14,8 @@ import wave
 
 from trainer import ALPHABET
 
+
+LOG = logging.getLogger('natocheck.audio')
 
 MAX_UPLOAD_BYTES = 2_000_000
 MAX_RECORDING_SECONDS = 60
@@ -116,6 +119,9 @@ def validate_recording(source, wav_path):
          '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le', str(wav_path)],
         capture_output=True, text=True, timeout=30)
     if conversion.returncode or conversion.stderr.strip():
+        LOG.warning('audio_decode_failed container=%s bytes=%s exit=%s detail=%s',
+                    source.suffix, source.stat().st_size, conversion.returncode,
+                    conversion.stderr.strip()[-2000:])
         raise ValueError('Recording is damaged or could not be decoded')
     with wave.open(str(wav_path), 'rb') as wav:
         if not 0 < wav.getnframes() / wav.getframerate() <= MAX_DECODED_SECONDS:

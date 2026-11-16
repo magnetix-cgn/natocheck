@@ -109,9 +109,10 @@ notification through the localmail skill after live verification.
 
 Every release runs `scripts/check-live-speech.py` against the public HTTPS API.
 It creates a fresh four-letter exercise, generates the expected English codewords
-with the existing local XvX TTS skill, encodes a 128 kbit/s WebM, validates it,
+with the existing local XvX TTS skill, encodes both 128 kbit/s WebM/Opus and fragmented MP4/AAC, validates each,
 uploads it without a language parameter, waits for real Whisper recognition and
-requires a 100% ordered comparison. No recognition response is mocked. A failure
+requires a 100% ordered comparison for both formats. These generated fixtures do
+not reproduce every Safari/iPhone MediaRecorder implementation. No recognition response is mocked. A failure
 makes the deployment command fail; do not report that release as verified.
 The deployment log distinguishes `restarted`, `live_failed` and `live_verified`.
 Synthetic speech verifies the processing pipeline, not every human microphone/accent.

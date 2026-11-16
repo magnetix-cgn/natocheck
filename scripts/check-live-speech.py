@@ -21,7 +21,7 @@ def request(path, payload=None, audio=None):
     if os.environ.get('NATOCHECK_VERIFY_IP'):
         command += ['--resolve', 'natocheck.eventhacker.de:443:' + os.environ['NATOCHECK_VERIFY_IP']]
     if audio:
-        command += ['-H', 'Content-Type: audio/webm', '--data-binary', '@' + str(audio)]
+        command += ['-H', 'Content-Type: ' + ('audio/mp4' if audio.suffix == '.m4a' else 'audio/webm'), '--data-binary', '@' + str(audio)]
     elif payload is not None:
         command += ['-H', 'Content-Type: application/json', '--data-binary', json.dumps(payload)]
     result = subprocess.run(command + [URL + path], capture_output=True, text=True, timeout=35)
@@ -51,31 +51,39 @@ def main():
         report.update(prompt=task['prompt'], expected=words)
         subprocess.run([sys.executable, str(tts_script), '--language', 'en', '--speed', '135',
                         '--text', ', '.join(words) + '.', '--name', name], check=True, timeout=60)
-        subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', str(wav), '-c:a', 'libopus',
-                        '-b:a', '128k', str(webm)], check=True, timeout=30)
-        validate_recording(webm, decoded)
-        report['upload_bytes'] = webm.stat().st_size
-        if not 0 < report['upload_bytes'] <= MAX_UPLOAD_BYTES:
-            raise RuntimeError('Generated recording violates the upload limit')
-        job = request('/api/transcribe', audio=webm)
-        deadline = time.monotonic() + 330
-        next_progress = time.monotonic() + 15
-        while time.monotonic() < deadline:
-            job = request('/api/transcriptions/' + job['id'])
-            if job['state'] != 'busy':
-                break
-            if time.monotonic() >= next_progress:
-                print('Waiting for live English recognition ...', flush=True)
-                next_progress = time.monotonic() + 15
-            time.sleep(1)
-        if job['state'] != 'done':
-            raise RuntimeError('Live recognition failed: ' + job.get('error', 'timeout'))
-        report['transcript'] = job['text']
-        report['recognition_seconds'] = job.get('elapsed_seconds')
-        result = request('/api/trainer/check', {'task_id': task['id'], 'text': job['text']})
-        report['result'] = result
-        if not result['passed'] or result['score'] != 100:
-            raise RuntimeError('Live speech comparison failed: ' + job['text'])
+        report['formats'] = []
+        for suffix, encoding in (
+                ('.webm', ['-c:a', 'libopus', '-b:a', '128k']),
+                ('.m4a', ['-c:a', 'aac', '-b:a', '128k', '-movflags',
+                          'frag_keyframe+empty_moov+default_base_moof', '-frag_duration', '1000000'])):
+            webm = output / (name + suffix)
+            subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', str(wav),
+                            *encoding, str(webm)], check=True, timeout=30)
+            validate_recording(webm, decoded)
+            format_result = {'format': suffix, 'upload_bytes': webm.stat().st_size}
+            report['formats'].append(format_result)
+            if not 0 < format_result['upload_bytes'] <= MAX_UPLOAD_BYTES:
+                raise RuntimeError('Generated recording violates the upload limit')
+            job = request('/api/transcribe', audio=webm)
+            deadline = time.monotonic() + 330
+            next_progress = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                job = request('/api/transcriptions/' + job['id'])
+                if job['state'] != 'busy':
+                    break
+                if time.monotonic() >= next_progress:
+                    print('Waiting for live English recognition ...', flush=True)
+                    next_progress = time.monotonic() + 15
+                time.sleep(1)
+            if job['state'] != 'done':
+                raise RuntimeError('Live recognition failed: ' + job.get('error', 'timeout'))
+            format_result['transcript'] = job['text']
+            format_result['recognition_seconds'] = job.get('elapsed_seconds')
+            result = request('/api/trainer/check', {'task_id': task['id'], 'text': job['text']})
+            format_result['result'] = result
+            if not result['passed'] or result['score'] != 100:
+                raise RuntimeError('Live speech comparison failed: ' + job['text'])
+            print('Live speech format passed: ' + suffix + ' -> ' + job['text'], flush=True)
         report['passed'] = True
         print('Live English speech check passed: ' + task['prompt'] + ' -> ' + job['text'] + ' (100%)', flush=True)
         return 0
