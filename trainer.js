@@ -28,6 +28,9 @@ async function request(path, body) {
 
 function setPhase(value, status) {
     phase = value;
+    document.body.dataset.phase = value;
+    el('gameProcessing').hidden = !(game.active && ['uploading', 'transcribing', 'checking'].includes(value));
+    el('playAgain').disabled = !['ready', 'review'].includes(value);
     const locked = !['ready', 'review'].includes(value);
     el('record').disabled = locked || !task || game.active;
     el('record').setAttribute('aria-pressed', String(value === 'recording'));
@@ -59,6 +62,7 @@ function fail(error) {
         clearTimeout(timer);
         renderGame();
     }
+    el('gameProcessing').hidden = true;
     el('error').textContent = error.message;
     setPhase('ready', 'Keine Wertung. Bitte erneut versuchen.');
 }
@@ -218,7 +222,7 @@ async function startRecording() {
                 const result = await response.json();
                 if (!response.ok) throw Error(result.error || 'Aufnahme konnte nicht verarbeitet werden.');
                 pendingJob = result.id;
-                setPhase('transcribing', 'Whisper erkennt deine Antwort lokal … Das kann etwas dauern.');
+                setPhase('transcribing', 'Auswertung läuft … Deine Aufnahme wird erkannt und anschließend verglichen.');
                 pollTranscription();
             } catch (error) { fail(error); }
         };
@@ -254,6 +258,7 @@ el('manualCheck').onclick = () => checkAnswer(el('manualText').value, 'TEXTEINGA
 el('checkText').onclick = () => checkAnswer(el('transcript').value, 'MANUELL KORRIGIERT');
 
 function renderGame() {
+    document.body.classList.toggle('playing', game.active);
     el('gameBoard').hidden = !game.active;
     document.querySelector('.modes').hidden = game.active;
     document.querySelector('.task-actions').hidden = game.active;
@@ -281,14 +286,17 @@ async function startGame() {
 
 function runChallenge() {
     const started = performance.now();
-    const countdown = 3000;
+    const countdown = 4000;
     el('gameClock').max = game.interval;
     setPhase('recording', 'Mach dich bereit. Sprich ab dem ersten Buchstaben ein Codewort pro Takt.');
     el('prompt').scrollIntoView({behavior: 'smooth', block: 'center'});
     function tick() {
         const elapsed = performance.now() - started - countdown;
         if (elapsed < 0) {
-            el('prompt').textContent = Math.ceil(-elapsed / 1000);
+            const remaining = Math.ceil(-elapsed / 1000);
+            el('prompt').textContent = remaining === 1 ? 'Go!' : remaining - 1;
+            el('gameRound').textContent = 'Bereit?';
+            el('gameClock').value = 0;
             return;
         }
         const index = Math.floor(elapsed / game.interval);
@@ -317,7 +325,9 @@ function finishGame(result) {
         : 'Deine Aufnahme ist ausgewertet. Unten siehst du den Vergleich für jeden Buchstaben.';
     el('gameSummary').hidden = false;
     renderGame();
-    el('gameSummary').scrollIntoView({behavior: 'smooth', block: 'center'});
+    el('gameProcessing').hidden = true;
+    el('gameSummaryTitle').focus({preventScroll: true});
+    el('gameSummary').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
 function cancelGame() {

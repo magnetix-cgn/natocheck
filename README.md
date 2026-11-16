@@ -7,11 +7,12 @@ A small NATO spelling game by Eventhacker. Play at:
 
 - Free training: single letters, words or four-letter sequences.
 - Challenge: click **Spiel starten**, allow the microphone and follow a three-second
-  countdown. Ten letters appear one after another at the selected pace: 1, 2, 3
+  countdown followed by **Go!**. Ten letters appear one after another at the selected pace: 1, 2, 3
   or 5 seconds per letter. The default is 3 seconds.
 - One continuous recording covers the entire challenge. Recording stops after
   the tenth letter's time slot; only then is the audio transcribed and compared.
-- The prominent final result shows correct letters out of ten and a percentage,
+- A dedicated **Auswertung läuft** state is shown while the complete recording is processed.
+- The prominent final result at the top of the page shows correct letters out of ten and a percentage,
   followed by the complete transcript and per-letter comparison.
 - Aborting a challenge discards the recording without grading it.
 - Free training supports manual recording, typed answers and transcript correction.
@@ -25,6 +26,10 @@ recognized text; it does not assess pronunciation quality.
 
 Reference: [Bundeswehr NATO alphabet](https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet).
 The official codewords displayed include Alfa and Juliett.
+
+The interface follows the Eventhacker profile palette (blue `#00AEEF`, deep black
+`#0B0F14`, neutral gray `#2D2D33`, steel gray and white). The profile does not
+bundle its licensed fonts, so the interface retains its local sans-serif fallback.
 
 ## Run locally in XvX
 

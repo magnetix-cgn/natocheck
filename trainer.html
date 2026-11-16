@@ -14,9 +14,10 @@
         <button type="button" id="alphabetToggle" aria-expanded="false" aria-controls="alphabetPanel">NATO-Alphabet einblenden</button>
         <img src="/assets/eventhacker-logo-white.webp" width="560" height="209" alt="Eventhacker Köln">
     </header>
+    <section id="gameSummary" class="card game-summary" aria-live="polite" hidden><span class="eyebrow">DEIN ERGEBNIS</span><h2 id="gameSummaryTitle" tabindex="-1"></h2><p id="gameSummaryText"></p><button type="button" id="playAgain" class="primary">Noch eine Runde →</button></section>
     <div class="intro"><span class="eyebrow">ALFA BIS ZULU / DEIN FUNK-CHECK</span>
-        <h1>Buchstabe für Buchstabe.<br><span>Klar und deutlich.</span></h1>
-        <p>Buchstabiere, was du siehst. Sprich die NATO-Codewörter ins Mikrofon und prüfe anschließend, was angekommen ist.</p>
+        <h1>Dein Mikrofon. Dein Takt.<br><span>Dein NATO-Check.</span></h1>
+        <p>Spiel starten. 3, 2, 1, Go! Sprich die NATO-Codewörter zu zehn Buchstaben. Dein Ergebnis kommt nach dem letzten Buchstaben.</p>
     </div>
     <section id="alphabetPanel" class="card reference" aria-labelledby="alphabet-title" hidden><div class="section-head"><h2 id="alphabet-title">Das NATO-Alphabet</h2><button type="button" id="alphabetClose" class="text-button">Schließen ×</button></div><div id="alphabet" class="alphabet"></div><p class="small">Schreibvarianten wie Alpha/Alfa, Juliet/Juliett und Fox Trot/Foxtrot werden akzeptiert. Zusätzliche Wörter und falsche Reihenfolgen zählen als Abweichung.</p><a href="https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet" target="_blank" rel="noopener">Mehr zum NATO-Alphabet ↗</a></section>
     <section class="game-launch" aria-label="Spielmodus">
@@ -28,10 +29,11 @@
         <div><span>BUCHSTABE</span><b id="gameRound">0 / 10</b></div><div><span>TAKT</span><b id="gameTime"></b></div><span id="gameHelp" hidden></span><button type="button" id="gameEnd" class="text-button">Spiel abbrechen</button>
         <progress id="gameClock" value="0" max="3000" aria-label="Zeit für den aktuellen Buchstaben"></progress>
     </section>
-    <section id="gameSummary" class="card game-summary" aria-live="polite" hidden><span class="eyebrow">CHALLENGE ABGESCHLOSSEN</span><h2 id="gameSummaryTitle" tabindex="-1"></h2><p id="gameSummaryText"></p><button type="button" id="playAgain" class="primary">Noch eine Runde →</button></section>
+
+    <section id="gameProcessing" class="card game-processing" role="status" hidden><span class="spinner" aria-hidden="true"></span><h2>Auswertung läuft …</h2><p>Alle zehn Buchstaben sind aufgenommen. Deine Codewörter werden jetzt gemeinsam erkannt und verglichen.</p></section>
     <div class="workspace">
         <section class="card exercise" aria-labelledby="exercise-title">
-            <div class="section-head"><h2 id="exercise-title">Deine Aufgabe</h2><span class="tag">TRAINING / JUST FOR FUN</span></div>
+            <div class="section-head"><h2 id="exercise-title">Dein Spielfeld</h2><span class="tag">TRAINING / JUST FOR FUN</span></div>
             <div class="modes" role="group" aria-label="Übungsart">
                 <button type="button" data-mode="letter" aria-pressed="true">Buchstabe</button>
                 <button type="button" data-mode="word" aria-pressed="false">Wort</button>
