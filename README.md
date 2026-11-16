@@ -3,6 +3,13 @@
 A small NATO spelling game by Eventhacker. Play at:
 **https://natocheck.eventhacker.de/**. This is an experimental training game.
 
+## Interface languages
+
+Use the DE / EN buttons in the header to switch the complete interface without
+reloading or clearing entered answers or results. The selection is saved locally.
+Direct links `/?lang=de` and `/?lang=en` select a language explicitly. German is
+the default. Interface language does not change the English-only recognizer.
+
 ## Play
 
 - Free training: single letters, words or four-letter sequences.
@@ -100,6 +107,7 @@ Training results appear directly above the input area and scroll into view after
 ```sh
 /home/magnetix/projects/xvx/xvx-venv/bin/python -m unittest discover -v
 node --check trainer.js
+node --check interface.js
 ```
 
 Tests include ordered comparison, spelling variants, wrong/missing/extra words,

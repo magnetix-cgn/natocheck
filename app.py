@@ -137,6 +137,7 @@ def handler(app, hosts):
             path = urlparse(self.path).path
             files = {'/': ('trainer.html', 'text/html'), '/trainer.js': ('trainer.js', 'text/javascript'),
                      '/trainer.css': ('trainer.css', 'text/css'),
+                     '/interface.js': ('interface.js', 'text/javascript'),
                      '/assets/eventhacker-logo-white.webp': ('assets/eventhacker-logo-white.webp', 'image/webp')}
             if path in files:
                 filename, mime = files[path]

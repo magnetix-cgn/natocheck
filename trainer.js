@@ -13,6 +13,13 @@ let previewURL = null;
 let pendingJob = null;
 let pollTimer = null;
 let rawTranscript = '';
+let correctedTranscript = null;
+function renderTranscript() {
+    el('rawText').textContent = correctedTranscript === null ? rawTranscript
+        : (interfaceLanguage === 'en' ? 'Original answer: ' : 'Originalantwort: ') + rawTranscript
+            + (interfaceLanguage === 'en' ? '\nCorrected: ' : '\nKorrigiert: ') + correctedTranscript;
+}
+document.addEventListener('interfacelanguagechange', renderTranscript);
 let cancelling = false;
 let game = {active: false, graded: false, pending: null};
 let lastTick = performance.now();
@@ -49,8 +56,8 @@ function setPhase(value, status) {
     el('confirmRound').disabled = locked || !game.pending || game.graded;
     el('correction').hidden = game.active;
     document.querySelector('.manual').hidden = game.active;
-    if (game.active) el('next').textContent = 'Nächste Runde →';
-    if (status) el('recordStatus').textContent = status;
+    if (game.active) uiText('next', 'Nächste Runde →');
+    if (status) uiText('recordStatus', status);
 }
 
 function fail(error) {
@@ -61,18 +68,18 @@ function fail(error) {
         renderGame();
     }
     el('gameProcessing').hidden = true;
-    el('error').textContent = error.message;
+    uiText('error', error.message);
     setPhase('ready', 'Keine Wertung. Bitte erneut versuchen.');
 }
 
 async function nextTask() {
     if (game.active) return;
     setPhase('loading', 'Neue Aufgabe …');
-    el('error').textContent = '';
+    uiText('error', '');
     try {
         task = await request('/api/trainer/task', {mode});
         el('prompt').textContent = task.prompt;
-        el('next').textContent = game.active ? 'Nächste Runde →' : 'Nächste Aufgabe →';
+        uiText('next', game.active ? 'Nächste Runde →' : 'Nächste Aufgabe →');
         document.querySelectorAll('[data-mode]').forEach(button => {
             button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
         });
@@ -90,7 +97,7 @@ async function nextTask() {
         if (game.active) finishGame('Verbindung unterbrochen');
         fail(error);
         el('next').disabled = false;
-        el('next').textContent = 'Verbindung erneut versuchen →';
+        uiText('next', 'Verbindung erneut versuchen →');
     }
 }
 
@@ -104,17 +111,17 @@ function clearPreview() {
 
 async function checkAnswer(text, source) {
     setPhase('checking', 'Antwort wird verglichen …');
-    el('error').textContent = '';
+    uiText('error', '');
     try {
         const result = await request('/api/trainer/check', {task_id: task.id, text});
         el('answer').hidden = false;
-        el('answerSource').textContent = source;
+        uiText('answerSource', source);
         if (source !== 'MANUELL KORRIGIERT') rawTranscript = text;
-        el('rawText').textContent = source === 'MANUELL KORRIGIERT'
-            ? 'Originalantwort: ' + rawTranscript + '\nKorrigiert: ' + text : text;
+        correctedTranscript = source === 'MANUELL KORRIGIERT' ? text : null;
+        renderTranscript();
         el('transcript').value = text;
-        el('verdict').textContent = result.passed ? 'Check! Alles richtig.'
-            : `${result.correct} von ${result.total} Codewörtern richtig · ${result.score} %`;
+        uiText('verdict', result.passed ? 'Check! Alles richtig.'
+            : `${result.correct} von ${result.total} Codewörtern richtig · ${result.score} %`);
         el('verdict').dataset.passed = String(result.passed);
         const labels = {correct: 'Richtig', wrong: 'Abweichung', missing: 'Fehlt', extra: 'Zusätzlich'};
         el('feedback').replaceChildren(...result.feedback.map(item => {
@@ -122,12 +129,13 @@ async function checkAnswer(text, source) {
             row.dataset.state = item.state;
             [item.letter || '—', item.expected || '—', item.heard || '—', labels[item.state]].forEach(value => {
                 const cell = document.createElement('td');
-                cell.textContent = value;
+                if (value === labels[item.state]) uiText(cell, value);
+                else cell.textContent = value;
                 row.append(cell);
             });
             return row;
         }));
-        el('expected').textContent = 'Lösung: ' + result.expected.join(' · ');
+        uiText('expected', 'Lösung: ' + result.expected.join(' · '));
         if (game.active) finishGame(result);
         else {
             el('answer-title').focus({preventScroll: true});
@@ -167,9 +175,9 @@ async function pollTranscription() {
             rawTranscript = t.text;
             await checkAnswer(t.text, 'SPRACHERKENNUNG');
             if (Number.isFinite(t.elapsed_seconds)) {
-                const duration = t.elapsed_seconds.toLocaleString('de-DE', {maximumFractionDigits: 1});
-                el('recordStatus').textContent = `Auswertung abgeschlossen · ${duration} Sekunden Erkennungszeit`;
-                if (!el('gameSummary').hidden) el('gameSummaryText').textContent += ` Erkennungszeit: ${duration} Sekunden.`;
+                const duration = t.elapsed_seconds.toLocaleString(interfaceLanguage === 'en' ? 'en-GB' : 'de-DE', {maximumFractionDigits: 1});
+                uiText('recordStatus', `Auswertung abgeschlossen · ${duration} Sekunden Erkennungszeit`);
+                if (!el('gameSummary').hidden) uiText('gameSummaryText', localizedElements.get(el('gameSummaryText')) + ` Erkennungszeit: ${duration} Sekunden.`);
             }
             return;
         }
@@ -188,7 +196,7 @@ async function pollTranscription() {
 
 async function startRecording() {
     if (game.active) game.pending = null;
-    el('error').textContent = '';
+    uiText('error', '');
     setPhase('permission', 'Mikrofon wird aktiviert …');
     el('answer').hidden = true;
     clearPreview();
@@ -239,7 +247,7 @@ async function startRecording() {
         setPhase('recording', 'Aufnahme läuft · 0 / 60 Sekunden');
         const started = Date.now();
         clock = setInterval(() => {
-            el('recordStatus').textContent = 'Aufnahme läuft · ' + Math.floor((Date.now() - started) / 1000) + ' / 60 Sekunden';
+            uiText('recordStatus', 'Aufnahme läuft · ' + Math.floor((Date.now() - started) / 1000) + ' / 60 Sekunden');
         }, 250);
         timer = setTimeout(stopRecording, 60000);
     } catch (error) {
@@ -254,7 +262,7 @@ document.querySelectorAll('[data-mode]').forEach(button => {
 });
 el('next').onclick = nextTask;
 el('reveal').onclick = () => {
-    el('solution').textContent = [...task.prompt].map(letter => alphabet[letter]).join(' · ');
+    uiText('solution', [...task.prompt].map(letter => alphabet[letter]).join(' · '));
     el('solution').hidden = !el('solution').hidden;
 };
 el('record').onclick = startRecording;
@@ -269,8 +277,8 @@ function renderGame() {
     document.querySelector('.task-actions').hidden = game.active;
     document.querySelector('.record-actions').hidden = game.active;
     if (!game.active) return;
-    el('gameRound').textContent = game.round + ' / 10';
-    el('gameTime').textContent = (game.interval / 1000) + ' s / Buchstabe';
+    uiText('gameRound', game.round + ' / 10');
+    uiText('gameTime', (game.interval / 1000) + ' s / Buchstabe');
 }
 
 async function startGame() {
@@ -280,7 +288,7 @@ async function startGame() {
     el('solution').hidden = true;
     el('alphabetPanel').hidden = true;
     el('alphabetToggle').setAttribute('aria-expanded', 'false');
-    el('alphabetToggle').textContent = 'NATO-Alphabet einblenden';
+    uiText('alphabetToggle', 'NATO-Alphabet einblenden');
     renderGame();
     setPhase('loading', 'Zehn Buchstaben werden vorbereitet …');
     try {
@@ -300,7 +308,7 @@ function runChallenge() {
         if (elapsed < 0) {
             const remaining = Math.ceil(-elapsed / 1000);
             el('prompt').textContent = remaining === 1 ? 'Go!' : remaining - 1;
-            el('gameRound').textContent = 'Bereit?';
+            uiText('gameRound', 'Bereit?');
             el('gameClock').value = 0;
             return;
         }
@@ -308,13 +316,13 @@ function runChallenge() {
         if (index >= 10) {
             clearInterval(clock);
             el('prompt').textContent = '✓';
-            el('recordStatus').textContent = 'Alle zehn Buchstaben aufgenommen. Audio wird ausgewertet …';
+            uiText('recordStatus', 'Alle zehn Buchstaben aufgenommen. Audio wird ausgewertet …');
             stopRecording();
             return;
         }
         game.round = index + 1;
         el('prompt').textContent = task.prompt[index];
-        el('recordStatus').textContent = `Buchstabe ${index + 1} von 10 · Jetzt das Codewort sprechen!`;
+        uiText('recordStatus', `Buchstabe ${index + 1} von 10 · Jetzt das Codewort sprechen!`);
         el('gameClock').value = game.interval - elapsed % game.interval;
         renderGame();
     }
@@ -324,10 +332,10 @@ function runChallenge() {
 
 function finishGame(result) {
     game.active = false;
-    el('gameSummaryTitle').textContent = `${result.correct} von 10 richtig · ${result.score} %`;
-    el('gameSummaryText').textContent = result.passed
+    uiText('gameSummaryTitle', `${result.correct} von 10 richtig · ${result.score} %`);
+    uiText('gameSummaryText', result.passed
         ? 'Challenge geschafft! Alle zehn Codewörter in der richtigen Reihenfolge.'
-        : 'Deine Aufnahme ist ausgewertet. Unten siehst du den Vergleich für jeden Buchstaben.';
+        : 'Deine Aufnahme ist ausgewertet. Unten siehst du den Vergleich für jeden Buchstaben.');
     el('gameSummary').hidden = false;
     renderGame();
     el('gameProcessing').hidden = true;
@@ -349,7 +357,7 @@ function toggleAlphabet() {
     const visible = el('alphabetPanel').hidden;
     el('alphabetPanel').hidden = !visible;
     el('alphabetToggle').setAttribute('aria-expanded', String(visible));
-    el('alphabetToggle').textContent = visible ? 'NATO-Alphabet ausblenden' : 'NATO-Alphabet einblenden';
+    uiText('alphabetToggle', visible ? 'NATO-Alphabet ausblenden' : 'NATO-Alphabet einblenden');
     if (visible && game.active && !game.graded) {
         game.hinted = true;
         renderGame();
@@ -381,7 +389,7 @@ async function initialize() {
     } catch (error) {
         fail(error);
         el('next').disabled = false;
-        el('next').textContent = 'Verbindung erneut versuchen →';
+        uiText('next', 'Verbindung erneut versuchen →');
         el('next').onclick = async () => { el('next').onclick = nextTask; await initialize(); };
     }
 }

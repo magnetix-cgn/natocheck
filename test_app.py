@@ -94,6 +94,11 @@ class ApplicationTests(unittest.TestCase):
                 self.assertNotIn(b'{{APP_VERSION}}', body)
                 self.assertLess(body.index(b'id="answer"'), body.index(b'class="workspace"'))
                 self.assertIn('text/html', mime)
+                self.assertIn(b'data-ui-language="en"', body)
+                script_status, script_body, script_mime = request('GET', '/interface.js')
+                self.assertEqual(script_status, 200)
+                self.assertIn(b'function translate', script_body)
+                self.assertIn('text/javascript', script_mime)
                 with patch.object(app, 'upload') as upload:
                     self.assertEqual(request('POST', '/api/transcribe', {}, **{'Content-Length': str(MAX_UPLOAD + 1)})[0], 413)
                     upload.assert_not_called()
