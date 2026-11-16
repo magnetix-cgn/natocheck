@@ -30,9 +30,10 @@ class ApplicationTests(unittest.TestCase):
             source.with_suffix('.txt').write_text('Alfa Bravo')
             source.with_suffix('.wav').write_bytes(b'example')
             app.worker.acquire()
-            with patch('app.subprocess.run', return_value=subprocess.CompletedProcess([], 0)) as runner:
+            with patch.object(app.recognizer, 'transcribe', return_value=1.25) as runner:
                 app.transcribe('one', source, 'en')
-            self.assertIn('--strict', runner.call_args.args[0])
+            runner.assert_called_once_with(source, 'en', source.with_suffix('.txt'))
+            self.assertEqual(app.status('one')['elapsed_seconds'], 1.25)
             self.assertEqual(app.status('one')['text'], 'Alfa Bravo')
             with self.assertRaises(ValueError):
                 app.status('unknown')
@@ -46,7 +47,7 @@ class ApplicationTests(unittest.TestCase):
             source = Path(folder)/'recording.webm'
             source.write_bytes(b'example')
             app.worker.acquire()
-            with patch('app.subprocess.run', side_effect=subprocess.TimeoutExpired('whisper', 300)):
+            with patch.object(app.recognizer, 'transcribe', side_effect=TimeoutError('Recognition timed out')):
                 app.transcribe('failed', source, 'en')
             self.assertEqual(app.status('failed')['state'], 'error')
             self.assertEqual(app.status('failed')['text'], '')

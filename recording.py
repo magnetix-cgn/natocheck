@@ -1,5 +1,7 @@
 """Normalize browser recordings and transcribe with the existing local Whisper skill."""
 import argparse
+from contextlib import redirect_stdout
+from functools import lru_cache
 from array import array
 import json
 import math
@@ -43,12 +45,42 @@ def recognized_text(result, strict=False):
     return ' '.join(accepted)
 
 
+@lru_cache(maxsize=1)
+def load_model(model_path):
+    """Keep the CPU model resident for the lifetime of the recognition worker."""
+    import whisper
+    return whisper.load_model(model_path, device='cpu')
+
+
+def configured_model_path():
+    path = Path(os.environ.get('NATOCHECK_WHISPER_MODEL', str(Path.home() / '.cache/whisper/base.pt'))).expanduser()
+    if not path.is_file():
+        raise ValueError('Local Whisper base model is missing; no automatic download is performed')
+    return str(path)
+
+
+def serve_worker():
+    """Preload once and exchange private job metadata over local pipes."""
+    try:
+        with redirect_stdout(sys.stderr):
+            load_model(configured_model_path())
+    except Exception as error:
+        print(f'Model preload failed: {error}', file=sys.stderr)
+    for line in sys.stdin:
+        try:
+            job = json.loads(line)
+            with redirect_stdout(sys.stderr):
+                transcribe(Path(job['source']), job['language'], Path(job['output']), strict=True)
+            result = {'ok': True}
+        except Exception as error:
+            result = {'ok': False, 'error': str(error)}
+        print(json.dumps(result), flush=True)
+
+
 def transcribe(source, language, output, strict=False):
     if language not in ('de', 'en'):
         raise ValueError('Only German and English are supported')
-    model_path = Path(os.environ.get('NATOCHECK_WHISPER_MODEL', str(Path.home() / '.cache/whisper/base.pt'))).expanduser()
-    if not model_path.is_file():
-        raise ValueError('Local Whisper base model is missing; no automatic download is performed')
+    model_path = configured_model_path()
     probe = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
                             '-of', 'json', str(source)], capture_output=True, text=True, timeout=20)
     if probe.returncode:
@@ -66,8 +98,7 @@ def transcribe(source, language, output, strict=False):
         samples = array('h', wav.readframes(wav.getnframes()))
     if not samples or math.sqrt(sum(s*s for s in samples)/len(samples)) < 80:
         raise ValueError('The recording is silent or too quiet; check the microphone')
-    import whisper
-    model = whisper.load_model(str(model_path), device='cpu')
+    model = load_model(model_path)
     result = model.transcribe(
         str(wav_path), language=language, fp16=False, temperature=0, beam_size=5,
         initial_prompt="NATO phonetic alphabet: " + ", ".join(ALPHABET.values()) + ".",
@@ -96,4 +127,7 @@ def main():
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    if sys.argv[1:] == ['--worker']:
+        serve_worker()
+    else:
+        raise SystemExit(main())

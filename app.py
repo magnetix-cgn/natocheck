@@ -7,13 +7,13 @@ import os
 from pathlib import Path
 import re
 import subprocess
-import sys
 import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from trainer import ALPHABET, Trainer
+from recognition_worker import RecognitionWorker
 
 BASE = Path(__file__).resolve().parent
 MAX_UPLOAD = 12 * 1024 * 1024
@@ -25,6 +25,7 @@ LOG = logging.getLogger('natocheck')
 class Application:
     def __init__(self, output):
         self.trainer = Trainer()
+        self.recognizer = RecognitionWorker()
         self.output = output
         self.jobs = collections.OrderedDict()
         self.lock = threading.Lock()
@@ -66,18 +67,13 @@ class Application:
     def transcribe(self, job_id, source, language):
         target = source.with_suffix('.txt')
         try:
-            result = subprocess.run([
-                sys.executable, str(BASE / 'recording.py'), '--input', str(source),
-                '--output', str(target), '--language', language, '--strict',
-            ], capture_output=True, timeout=300,
-                env={**os.environ, 'OMP_NUM_THREADS': os.environ.get('OMP_NUM_THREADS', '2')})
-            if result.returncode:
-                raise ValueError(result.stderr.decode('utf-8', errors='replace')[-1500:] or 'Speech recognition failed')
+            elapsed = self.recognizer.transcribe(source, language, target)
+            LOG.info('recognition_complete job=%s elapsed_seconds=%.2f', job_id, elapsed)
             text = target.read_text(encoding='utf-8').strip()
             if not text:
                 raise ValueError('No reliable speech recognized')
-            state = dict(id=job_id, state='done', text=text, error='')
-        except (ValueError, OSError, subprocess.SubprocessError) as error:
+            state = dict(id=job_id, state='done', text=text, error='', elapsed_seconds=elapsed)
+        except (ValueError, OSError, RuntimeError, subprocess.SubprocessError) as error:
             state = dict(id=job_id, state='error', text='', error=str(error))
         finally:
             for path in (source, target, source.with_suffix('.wav')):
@@ -184,7 +180,9 @@ def main():
     hosts = {f'127.0.0.1:{args.port}', f'localhost:{args.port}'}
     hosts.update(filter(None, os.environ.get('NATOCHECK_ALLOWED_HOSTS', '').split(',')))
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(levelname)s %(message)s')
-    server = ThreadingHTTPServer(('127.0.0.1', args.port), handler(Application(output), hosts))
+    app = Application(output)
+    server = ThreadingHTTPServer(('127.0.0.1', args.port), handler(app, hosts))
+    app.recognizer.start()
     print(f'NatoCheck: http://127.0.0.1:{args.port}', flush=True)
     try:
         server.serve_forever()
@@ -192,6 +190,7 @@ def main():
         pass
     finally:
         server.server_close()
+        app.recognizer.close()
 
 
 if __name__ == '__main__':

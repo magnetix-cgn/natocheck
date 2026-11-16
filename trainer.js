@@ -164,6 +164,11 @@ async function pollTranscription() {
             pendingJob = null;
             rawTranscript = t.text;
             await checkAnswer(t.text, 'SPRACHERKENNUNG');
+            if (Number.isFinite(t.elapsed_seconds)) {
+                const duration = t.elapsed_seconds.toLocaleString('de-DE', {maximumFractionDigits: 1});
+                el('recordStatus').textContent = `Auswertung abgeschlossen · ${duration} Sekunden Erkennungszeit`;
+                if (!el('gameSummary').hidden) el('gameSummaryText').textContent += ` Erkennungszeit: ${duration} Sekunden.`;
+            }
             return;
         }
         if (t.state === 'error') throw Error('Sprache nicht sicher erkannt. ' + t.error);
