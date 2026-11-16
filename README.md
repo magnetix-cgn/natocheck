@@ -16,6 +16,8 @@ A small NATO spelling game by Eventhacker. Play at:
   followed by the complete transcript and per-letter comparison.
 - Aborting a challenge discards the recording without grading it.
 - Free training supports manual recording, typed answers and transcript correction.
+- Recording uses the default microphone and English recognition only. There is no
+  microphone settings card or language selector; the server also enforces English.
 - The **NATO-Alphabet einblenden** button opens the reference table.
 
 The comparison checks codewords and their order, including missing and extra

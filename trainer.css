@@ -36,3 +36,5 @@ body[data-phase="uploading"].playing .workspace, body[data-phase="transcribing"]
 .answer { margin: 20px 0; scroll-margin-top: 16px; }
 .brand { flex-wrap: wrap; }
 .app-version { white-space: nowrap; }
+
+.workspace { grid-template-columns: minmax(0, 1fr); }

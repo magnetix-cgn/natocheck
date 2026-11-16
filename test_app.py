@@ -22,7 +22,7 @@ class ApplicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             app = Application(Path(folder))
             for data, mime, language in [(b'wrong', 'audio/webm', 'en'),
-                    (b'OggSdata', 'audio/ogg', 'ja'), (b'OggSdata', 'text/plain', 'en')]:
+                    (b'OggSdata', 'audio/ogg', 'ja'), (b'OggSdata', 'audio/ogg', 'de'), (b'OggSdata', 'text/plain', 'en')]:
                 with self.assertRaises(ValueError):
                     app.upload(data, mime, language)
             self.assertTrue(app.worker.acquire(blocking=False))
@@ -94,6 +94,11 @@ class ApplicationTests(unittest.TestCase):
                 self.assertNotIn(b'{{APP_VERSION}}', body)
                 self.assertLess(body.index(b'id="answer"'), body.index(b'class="workspace"'))
                 self.assertIn('text/html', mime)
+                self.assertNotIn(b'id="language"', body)
+                self.assertNotIn(b'class="card setup"', body)
+                with patch.object(app, 'upload', return_value={'id': 'test'}) as upload:
+                    request('POST', '/api/transcribe?language=de', {'audio': 'test'})
+                    self.assertEqual(upload.call_args.args[2], 'en')
                 status, body, _ = request('POST', '/api/trainer/task', {'mode': 'word'})
                 self.assertEqual(status, 200)
                 task = json.loads(body)

@@ -11,7 +11,7 @@ import subprocess
 import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 
 from trainer import ALPHABET, Trainer
 from recognition_worker import RecognitionWorker
@@ -52,7 +52,7 @@ class Application:
             return dict(self.jobs[job_id])
 
     def upload(self, data, mime, language):
-        if mime not in FORMATS or language not in ('de', 'en'):
+        if mime not in FORMATS or language != 'en':
             raise ValueError('Unsupported recording format or language')
         if not 0 < len(data) <= MAX_UPLOAD:
             raise ValueError('Recording must be between 1 byte and 12 MB')
@@ -166,8 +166,7 @@ def handler(app, hosts):
                 if len(data) != length:
                     raise ValueError('Incomplete request')
                 if path == '/api/transcribe':
-                    language = parse_qs(urlparse(self.path).query).get('language', ['en'])[0]
-                    return self.send(202, app.upload(data, mime, language))
+                    return self.send(202, app.upload(data, mime, 'en'))
                 if mime != 'application/json':
                     raise ValueError('Expected JSON')
                 value = json.loads(data)

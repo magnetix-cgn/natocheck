@@ -39,8 +39,6 @@ function setPhase(value, status) {
     el('reveal').disabled = locked || !task || game.active;
     el('manualCheck').disabled = locked || !task || game.active;
     el('checkText').disabled = locked || !task;
-    el('microphone').disabled = locked;
-    el('language').disabled = locked;
     document.querySelectorAll('[data-mode]').forEach(button => { button.disabled = locked || game.active; });
     el('gameStart').disabled = locked || game.active;
     el('gameEnd').disabled = locked;
@@ -197,18 +195,10 @@ async function startRecording() {
         const mime = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4']
             .find(value => MediaRecorder.isTypeSupported(value));
         if (!mime) throw Error('Kein unterstütztes Aufnahmeformat verfügbar.');
-        const device = el('microphone').value;
         stream = await navigator.mediaDevices.getUserMedia({audio: {
-            ...(device ? {deviceId: {exact: device}} : {}),
             echoCancellation: true, noiseSuppression: true,
         }});
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        el('microphone').replaceChildren(new Option('Standardmikrofon', ''),
-            ...devices.filter(d => d.kind === 'audioinput' && d.deviceId !== 'default')
-                .map(d => new Option(d.label || 'Mikrofon', d.deviceId)));
-        el('microphone').value = device;
         const chunks = [];
-        const language = el('language').value;
         recorder = new MediaRecorder(stream, {mimeType: mime});
         recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
         recorder.onerror = async event => {
@@ -225,7 +215,7 @@ async function startRecording() {
                 previewURL = URL.createObjectURL(blob);
                 el('preview').src = previewURL;
                 el('preview').hidden = false;
-                const response = await fetch('/api/transcribe?language=' + language, {
+                const response = await fetch('/api/transcribe', {
                     method: 'POST', headers: {'Content-Type': mime}, body: blob,
                 });
                 const result = await response.json();

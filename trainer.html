@@ -56,16 +56,9 @@
             <div class="record-actions"><button type="button" id="record" class="primary" aria-pressed="false" disabled><span aria-hidden="true">●</span> Antwort aufnehmen</button><button type="button" id="recordStop" disabled>Stoppen &amp; prüfen</button></div>
             <p id="recordStatus" class="status" role="status">Trainer wird verbunden …</p>
             <p id="error" class="error" role="alert"></p>
+            <p class="small">Erkennung immer auf Englisch mit dem Standardmikrofon. Aufnahme nur nach deinem Klick, maximal 60 Sekunden. Verarbeitung auf diesem App-Server; die Aufnahme wird nach der Erkennung gelöscht.</p>
             <audio id="preview" controls hidden aria-label="Deine letzte Aufnahme"></audio>
         </section>
-        <aside class="card setup" aria-labelledby="setup-title">
-            <span class="eyebrow">01 / EINSTELLEN</span><h2 id="setup-title">Dein Mikrofon</h2>
-            <label for="microphone">Audioeingang</label><select id="microphone"><option value="">Standardmikrofon</option></select>
-            <label for="language">Erkennungssprache</label><select id="language"><option value="en">Englisch</option><option value="de">Deutsch</option></select>
-            <p>Die Codewörter bleiben englisch. Beginne zum Beispiel mit „Alfa“ für A oder „Bravo“ für B.</p>
-            <div class="steps"><span>01 <b>Aufgabe lesen</b></span><span>02 <b>Codewörter sprechen</b></span><span>03 <b>Ergebnis prüfen</b></span></div>
-            <p class="small">Aufnahme nur nach deinem Klick, maximal 60 Sekunden. Die Aufnahme geht an diesen App-Server und wird nach der Erkennung gelöscht. Kein externer Sprachdienst.</p>
-        </aside>
     </div>
     <section class="card manual"><details><summary>Ohne Mikrofon üben</summary><p>Du kannst die Codewörter auch eingeben und prüfen lassen.</p><label for="manualText">Deine Antwort</label><textarea id="manualText" maxlength="2000" placeholder="NATO-Codewörter eingeben …"></textarea><button type="button" id="manualCheck" disabled>Textantwort prüfen</button></details></section>
 
