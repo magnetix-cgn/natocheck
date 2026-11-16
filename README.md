@@ -105,6 +105,12 @@ See [deploy/README.md](deploy/README.md). The initial DNS, HTTPS, service and re
 The HTTPS page and exercise API were verified. Future infrastructure changes
 still require appropriate authorization.
 
+## Fresh Debian / Xen guest
+
+For a new Debian 13 VM with an XvX Python runtime, see
+[the installation guide](deploy/debian-guest.md) and `scripts/bootstrap-debian.sh`.
+The default invocation prints a plan; installation requires `--apply`.
+
 ## Origin
 
 The recording pipeline and Eventhacker logo were reused from the owner's
