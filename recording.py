@@ -116,7 +116,8 @@ def validate_recording(source, wav_path):
     conversion = subprocess.run(
         ['ffmpeg', '-nostdin', '-v', 'error', '-xerror', '-err_detect', 'explode', '-y',
          *input_args, '-t', str(MAX_DECODED_SECONDS + 1), '-map', '0:a:0',
-         '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'pcm_s16le', str(wav_path)],
+         '-vn', '-ac', '1', '-af', 'aresample=16000,asetpts=N/SR/TB',
+         '-ar', '16000', '-c:a', 'pcm_s16le', str(wav_path)],
         capture_output=True, text=True, timeout=30)
     if conversion.returncode or conversion.stderr.strip():
         LOG.warning('audio_decode_failed container=%s bytes=%s exit=%s detail=%s',

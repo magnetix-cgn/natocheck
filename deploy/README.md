@@ -109,7 +109,8 @@ notification through the localmail skill after live verification.
 
 Every release runs `scripts/check-live-speech.py` against the public HTTPS API.
 It creates a fresh four-letter exercise, generates the expected English codewords
-with the existing local XvX TTS skill, encodes both 128 kbit/s WebM/Opus and fragmented MP4/AAC, validates each,
+with the existing local XvX TTS skill, records 128 kbit/s WebM/Opus through actual Chromium MediaRecorder chunks and
+encodes fragmented MP4/AAC, validates each,
 uploads it without a language parameter, waits for real Whisper recognition and
 requires a 100% ordered comparison for both formats. These generated fixtures do
 not reproduce every Safari/iPhone MediaRecorder implementation. No recognition response is mocked. A failure
@@ -117,7 +118,8 @@ makes the deployment command fail; do not report that release as verified.
 The deployment log distinguishes `restarted`, `live_failed` and `live_verified`.
 Synthetic speech verifies the processing pipeline, not every human microphone/accent.
 
-The release workstation needs its existing eSpeak and FFmpeg installations and
+The release workstation needs its existing eSpeak, FFmpeg, `/usr/bin/chromium`,
+Python Playwright installation and
 `../../skills-available/tts/speak.py`. Set `NATOCHECK_TTS_SCRIPT` to an existing
 TTS skill path when needed. No tool, model or dependency is installed implicitly.
 Generated speech and JSON reports remain in the TTS skill's `out.user.magnetics/`,
@@ -126,3 +128,8 @@ outside this repository. To rerun acceptance without deploying:
 ```sh
 ../../xvx-venv/bin/python scripts/check-live-speech.py
 ```
+
+Audio conversion normalizes decoded sample timestamps after resampling with
+`aresample=16000,asetpts=N/SR/TB`. This avoids WAV mux failures from negative or
+non-monotonic MediaRecorder timestamps without disabling strict input decoding,
+size, stream, duration or silence checks.

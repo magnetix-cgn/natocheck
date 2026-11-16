@@ -7,6 +7,8 @@ local_python="${NATOCHECK_PYTHON:-../../xvx-venv/bin/python}"
 tts_script="${NATOCHECK_TTS_SCRIPT:-../../skills-available/tts/speak.py}"
 [[ -f "$tts_script" ]] || { echo 'Existing XvX TTS skill required; set NATOCHECK_TTS_SCRIPT.' >&2; exit 1; }
 command -v ffmpeg >/dev/null
+[[ -x /usr/bin/chromium ]] || { echo 'Existing Chromium required for MediaRecorder acceptance.' >&2; exit 1; }
+"$local_python" -c 'import playwright.sync_api'
 command -v espeak-ng >/dev/null || command -v espeak >/dev/null
 git fetch origin main
 release_sha="$(git rev-parse HEAD)"

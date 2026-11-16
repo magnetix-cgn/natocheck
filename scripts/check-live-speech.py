@@ -1,5 +1,6 @@
 """Verify live English speech generation, upload, recognition and scoring."""
 import argparse
+import base64
 from datetime import datetime, timezone
 import json
 import os
@@ -30,6 +31,50 @@ def request(path, payload=None, audio=None):
     return json.loads(result.stdout)
 
 
+def record_browser_audio(wav, target):
+    """Exercise actual MediaRecorder chunk timestamps instead of a clean FFmpeg mux."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(
+            executable_path='/usr/bin/chromium', headless=True,
+            args=['--no-sandbox', '--autoplay-policy=no-user-gesture-required'])
+        try:
+            page = browser.new_page()
+            encoded = page.evaluate("""async encoded => {
+                const context = new AudioContext();
+                await context.resume();
+                const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+                const buffer = await context.decodeAudioData(bytes.buffer);
+                const source = context.createBufferSource();
+                source.buffer = buffer;
+                const destination = context.createMediaStreamDestination();
+                source.connect(destination);
+                const recorder = new MediaRecorder(destination.stream,
+                    {mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 128000});
+                const chunks = [];
+                const finished = new Promise((resolve, reject) => {
+                    recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+                    recorder.onerror = reject;
+                    recorder.onstop = async () => {
+                        const data = new Uint8Array(await new Blob(chunks).arrayBuffer());
+                        let binary = '';
+                        for (const byte of data) binary += String.fromCharCode(byte);
+                        resolve(btoa(binary));
+                    };
+                });
+                recorder.start(1000);
+                source.onended = () => recorder.stop();
+                source.start();
+                const result = await finished;
+                destination.stream.getTracks().forEach(track => track.stop());
+                await context.close();
+                return result;
+            }""", base64.b64encode(wav.read_bytes()).decode('ascii'))
+            target.write_bytes(base64.b64decode(encoded))
+        finally:
+            browser.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tts-script', type=Path, default=BASE.parents[1] / 'skills-available/tts/speak.py')
@@ -57,8 +102,11 @@ def main():
                 ('.m4a', ['-c:a', 'aac', '-b:a', '128k', '-movflags',
                           'frag_keyframe+empty_moov+default_base_moof', '-frag_duration', '1000000'])):
             webm = output / (name + suffix)
-            subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', str(wav),
-                            *encoding, str(webm)], check=True, timeout=30)
+            if suffix == '.webm':
+                record_browser_audio(wav, webm)
+            else:
+                subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', str(wav),
+                                *encoding, str(webm)], check=True, timeout=30)
             validate_recording(webm, decoded)
             format_result = {'format': suffix, 'upload_bytes': webm.stat().st_size}
             report['formats'].append(format_result)

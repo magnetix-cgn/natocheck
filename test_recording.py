@@ -1,5 +1,7 @@
 """Regression checks for unreliable local speech recognition."""
 import unittest
+import json
+import wave
 import subprocess
 import tempfile
 from pathlib import Path
@@ -55,6 +57,24 @@ class UploadValidationTests(unittest.TestCase):
                     source = Path(folder) / ('valid' + suffix)
                     self.make_audio(source, codec=codec)
                     validate_recording(source, Path(folder) / 'decoded.wav')
+
+    def test_browser_timestamp_regression_decodes_to_sample_duration(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'timestamps.webm'
+            self.make_audio(source)
+            packets = json.loads(subprocess.check_output(
+                ['ffprobe', '-v', 'error', '-show_entries', 'packet=pos',
+                 '-of', 'json', str(source)], text=True))['packets']
+            data = bytearray(source.read_bytes())
+            position = int(packets[1]['pos'])
+            self.assertEqual(data[position], 0x81)
+            # Simulate a browser block whose timestamp moves behind the first block.
+            data[position + 1:position + 3] = (-1).to_bytes(2, 'big', signed=True)
+            source.write_bytes(data)
+            decoded = Path(folder) / 'decoded.wav'
+            validate_recording(source, decoded)
+            with wave.open(str(decoded), 'rb') as audio:
+                self.assertAlmostEqual(audio.getnframes() / audio.getframerate(), 1, delta=0.05)
 
     def test_fragmented_stereo_aac_mp4_decodes(self):
         with tempfile.TemporaryDirectory() as folder:
