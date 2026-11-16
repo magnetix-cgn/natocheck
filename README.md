@@ -12,7 +12,8 @@ the default. Interface language does not change the English-only recognizer.
 
 ## Play
 
-- Free training: single letters, words or four-letter sequences.
+- The public interface shows the ten-letter challenge. Free training is hidden.
+- Record in a quiet environment; preferably use a headset.
 - Challenge: click **Spiel starten**, allow the microphone and follow a three-second
   countdown followed by **Go!**. Ten letters appear one after another at the selected pace: 1, 2, 3
   or 5 seconds per letter. The default is 3 seconds.

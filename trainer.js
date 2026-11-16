@@ -55,7 +55,7 @@ function setPhase(value, status) {
     el('recordStop').disabled = value !== 'recording' || game.active;
     el('confirmRound').disabled = locked || !game.pending || game.graded;
     el('correction').hidden = game.active;
-    document.querySelector('.manual').hidden = game.active;
+    document.querySelector('.manual').hidden = true;
     if (game.active) uiText('next', 'Nächste Runde →');
     if (status) uiText('recordStatus', status);
 }
@@ -91,7 +91,7 @@ async function nextTask() {
         rawTranscript = '';
         clearPreview();
         lastTick = performance.now();
-        setPhase('ready', 'Bereit. Sprich die Codewörter in der angezeigten Reihenfolge.');
+        setPhase('ready', 'Bereit für die Challenge. Klicke auf Spiel starten.');
     } catch (error) {
         task = null;
         if (game.active) finishGame('Verbindung unterbrochen');

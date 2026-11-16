@@ -42,3 +42,9 @@ body[data-phase="uploading"].playing .workspace, body[data-phase="transcribing"]
 .interface-language { display: flex; gap: 4px; }
 .interface-language button { padding: 8px 12px; }
 .interface-language button[aria-pressed="true"] { background: var(--mint); color: #0B0F14; border-color: var(--mint); }
+
+body:not(.playing) [data-challenge-workspace] { display: none; }
+.manual { display: none; }
+.game-status { flex-basis: 100%; }
+.recording-tip { color: var(--ink); }
+.game-launch { flex-wrap: wrap; }
