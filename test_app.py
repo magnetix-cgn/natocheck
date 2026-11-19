@@ -112,6 +112,8 @@ class ApplicationTests(unittest.TestCase):
                 self.assertLess(body.index(b'id="answer"'), body.index(b'class="workspace"'))
                 self.assertIn('text/html', mime)
                 self.assertIn(b'data-ui-language="en"', body)
+                self.assertIn(b'href="https://eventhacker.de/" aria-label="Eventhacker Startseite"', body)
+                self.assertIn(b'class="eventhacker-logo"', body)
                 script_status, script_body, script_mime = request('GET', '/interface.js')
                 self.assertEqual(script_status, 200)
                 self.assertIn(b'function translate', script_body)
