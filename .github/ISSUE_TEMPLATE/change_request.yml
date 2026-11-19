@@ -4,7 +4,7 @@ title: "[Request] "
 body:
   - type: markdown
     attributes:
-      value: "Thanks for helping improve NatoCheck. German and English are welcome. / Danke für deine Idee. Deutsch und Englisch sind willkommen."
+      value: "Thanks for helping improve NatoCheck. German and English are welcome. / Danke für deine Idee. Deutsch und Englisch sind willkommen.\n\n🎮 **Play / Spiel testen:** https://natocheck.eventhacker.de/\n\nPlease test the game before reporting an issue, and include the steps to reproduce it. / Bitte teste das Spiel vor deiner Meldung und beschreibe, wie sich der Fehler reproduzieren lässt."
   - type: dropdown
     id: kind
     attributes:
