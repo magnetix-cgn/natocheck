@@ -75,7 +75,6 @@ const interfaceTranslations = {
     "Open Source. Deine Idee zählt.": "Open source. Your ideas matter.",
     "Du willst NatoCheck verändern, hast eine Idee oder einen Fehler gefunden? Schick uns einen Task oder Change Request als GitHub-Issue. Du kannst den Code auch selbst ändern und einen Pull Request einreichen.": "Want to change NatoCheck, suggest an idea or report a bug? Send us a task or change request as a GitHub issue. You can also change the code and submit a pull request.",
     "NatoCheck · Ein Eventhacker-Experiment.": "NatoCheck · An Eventhacker experiment.",
-    "Verglichen wird der erkannte Text, nicht die Aussprache.": "We compare recognized text, not pronunciation.",
     "Anfrage fehlgeschlagen.": "Request failed.",
     "Nächste Runde →": "Next round →",
     "Keine Wertung. Bitte erneut versuchen.": "No score. Please try again.",
