@@ -1,0 +1,14 @@
+[Unit]
+Description=Export aggregate NatoCheck Apache usage metrics
+
+[Service]
+Type=oneshot
+ExecStart=/home/magnetix/projects/xvx/xvx-venv/bin/python /var/www/natocheck/scripts/export-usage.py --output /var/lib/prometheus/node-exporter/natocheck_usage.prom
+Nice=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadWritePaths=/var/lib/prometheus/node-exporter
+TimeoutStartSec=50
+UMask=0022

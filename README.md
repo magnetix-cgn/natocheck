@@ -133,6 +133,9 @@ See [deploy/README.md](deploy/README.md). The initial DNS, HTTPS, service and re
 The HTTPS page and exercise API were verified. Future infrastructure changes
 still require appropriate authorization.
 
+The proposed aggregate Grafana usage board, metric definitions and initial
+installation approval gate are documented in [deploy/usage-monitoring.md](deploy/usage-monitoring.md).
+
 ## Fresh Debian / Xen guest
 
 For a new Debian 13 VM with an XvX Python runtime, see

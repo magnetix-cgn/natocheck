@@ -1,0 +1,445 @@
+{
+  "uid": "natocheck-usage",
+  "title": "NatoCheck Usage",
+  "description": "Aggregate request usage from retained Apache logs; no visitor tracking.",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "tags": [
+    "eventhacker",
+    "natocheck",
+    "usage"
+  ],
+  "timezone": "browser",
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "Was wird gezählt?",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 5
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "NatoCheck · Anfragen aus den vorhandenen Apache-Logs. **Keine eindeutigen Personen oder Sitzungen.** Bots, Tests und wiederholte Prüfungen sind enthalten. Übungen zählen erfolgreiche Aufgabenerzeugungen; Antwortprüfungen zählen erfolgreiche Check-Anfragen; angenommene Uploads (HTTP 202) sind **keine erfolgreich erkannten Aufnahmen**. Keine Audios, Texte oder IP-Adressen werden nach Grafana übertragen.\n\nKennzahlen zeigen feste rollierende **24 Stunden**, unabhängig vom Zeitfilter. Verlauf: jeweils die vorherige Stunde. Historische Anfragen sind nur innerhalb der vorhandenen Log-Aufbewahrung enthalten. Keine Daten bei einem Export älter als drei Minuten."
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Seitenaufrufe · 24 h",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"page\",window=\"24h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "noValue": "Keine aktuellen Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Erzeugte Übungen · 24 h",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 5,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"exercise\",window=\"24h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "noValue": "Keine aktuellen Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Antwortprüfungen · 24 h",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"check\",window=\"24h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "noValue": "Keine aktuellen Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Angenommene Aufnahmen · 24 h",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 5,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"upload\",window=\"24h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "noValue": "Keine aktuellen Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Nutzung · Anfragen in der vorherigen Stunde",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"page\",window=\"1h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "page"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"exercise\",window=\"1h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "exercise"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"check\",window=\"1h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "check"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"upload\",window=\"1h\",status=~\"2xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "upload"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "decimals": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "HTTP-Fehler · vorherige Stunde",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"page\",window=\"1h\",status=~\"4xx|5xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "page"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"exercise\",window=\"1h\",status=~\"4xx|5xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "exercise"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"check\",window=\"1h\",status=~\"4xx|5xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "check"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"upload\",window=\"1h\",status=~\"4xx|5xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "upload"
+        },
+        {
+          "refId": "E",
+          "expr": "sum(natocheck_usage_requests{job=\"node\",event=\"other\",window=\"1h\",status=~\"4xx|5xx\"} and on(instance,job) (time() - natocheck_usage_export_timestamp_seconds{job=\"node\"} < 180))",
+          "legendFormat": "other"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "decimals": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Alter des Exports",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 8,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - natocheck_usage_export_timestamp_seconds{job=\"node\"}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "noValue": "Keine Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "Alter der ältesten verfügbaren Log-Anfrage",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 18,
+        "w": 8,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - natocheck_usage_oldest_retained_timestamp_seconds{job=\"node\"}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "noValue": "Keine Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Nicht lesbare Logzeilen",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-local"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 18,
+        "w": 8,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "natocheck_usage_malformed_lines{job=\"node\"}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "noValue": "Keine Daten"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "graphMode": "none",
+        "colorMode": "value"
+      }
+    }
+  ],
+  "links": [
+    {
+      "title": "NatoCheck",
+      "url": "https://natocheck.eventhacker.de/",
+      "targetBlank": true,
+      "type": "link"
+    }
+  ]
+}
