@@ -9,6 +9,7 @@ const interfaceTranslations = {
     "Aufnahme angekommen. Bitte die unsichere Erkennung prüfen oder erneut aufnehmen.": "Recording received. Please review the uncertain transcript or record again.",
     "NatoCheck · Buchstabieren. Sprechen. Checken.": "NatoCheck · Spell. Speak. Check.",
     "NatoCheck Startseite": "NatoCheck home",
+    "Eventhacker Startseite": "Eventhacker home",
     "NATO-Alphabet einblenden": "Show NATO alphabet",
     "NATO-Alphabet ausblenden": "Hide NATO alphabet",
     "DEIN ERGEBNIS": "YOUR RESULT",
