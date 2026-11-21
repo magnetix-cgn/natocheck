@@ -15,6 +15,7 @@ sys.path.insert(0, str(BASE))
 from recording import MAX_UPLOAD_BYTES, validate_recording
 
 URL = 'https://natocheck.eventhacker.de'
+LEAD_IN_MS = 500
 
 
 def request(path, payload=None, audio=None):
@@ -40,7 +41,7 @@ def record_browser_audio(wav, target):
             args=['--no-sandbox', '--autoplay-policy=no-user-gesture-required'])
         try:
             page = browser.new_page()
-            encoded = page.evaluate("""async encoded => {
+            encoded = page.evaluate("""async ({encoded, leadInSeconds}) => {
                 const context = new AudioContext();
                 await context.resume();
                 const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
@@ -64,12 +65,13 @@ def record_browser_audio(wav, target):
                 });
                 recorder.start(1000);
                 source.onended = () => recorder.stop();
-                source.start();
+                source.start(context.currentTime + leadInSeconds);
                 const result = await finished;
                 destination.stream.getTracks().forEach(track => track.stop());
                 await context.close();
                 return result;
-            }""", base64.b64encode(wav.read_bytes()).decode('ascii'))
+            }""", {'encoded': base64.b64encode(wav.read_bytes()).decode('ascii'),
+                    'leadInSeconds': LEAD_IN_MS / 1000})
             target.write_bytes(base64.b64decode(encoded))
         finally:
             browser.close()
@@ -88,7 +90,8 @@ def main():
     wav = output / (name + '.wav')
     webm = output / (name + '.webm')
     decoded = output / (name + '_decoded.wav')
-    report = {'started': datetime.now(timezone.utc).isoformat(), 'url': URL, 'language': 'en', 'passed': False}
+    report = {'started': datetime.now(timezone.utc).isoformat(), 'url': URL, 'language': 'en',
+              'lead_in_ms': LEAD_IN_MS, 'passed': False}
     try:
         task = request('/api/trainer/task', {'mode': 'sequence'})
         alphabet = request('/api/trainer/alphabet')
@@ -106,6 +109,7 @@ def main():
                 record_browser_audio(wav, webm)
             else:
                 subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', str(wav),
+                                '-af', f'adelay={LEAD_IN_MS}:all=1',
                                 *encoding, str(webm)], check=True, timeout=30)
             validate_recording(webm, decoded)
             format_result = {'format': suffix, 'upload_bytes': webm.stat().st_size}

@@ -139,6 +139,11 @@ uploads it without a language parameter, waits for real Whisper recognition and
 requires a 100% ordered comparison for both formats. These generated fixtures do
 not reproduce every Safari/iPhone MediaRecorder implementation. No recognition response is mocked. A failure
 makes the deployment command fail; do not report that release as verified.
+Both synthetic formats include a 500 ms silent lead-in before the complete
+spoken fixture. An immediate-start fixture repeatedly lost its initial Zulu;
+the identical words were recognized completely with this lead-in. The real game
+already records a countdown before the first answer. Grading still requires all
+four words in order; recognizer settings and production audio are unchanged.
 The deployment log distinguishes `restarted`, `live_failed` and `live_verified`.
 Synthetic speech verifies the processing pipeline, not every human microphone/accent.
 
