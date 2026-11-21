@@ -110,7 +110,7 @@ verify_args=()
 if [[ -n "${NATOCHECK_VERIFY_IP:-}" ]]; then
     verify_args=(--resolve "natocheck.eventhacker.de:443:${NATOCHECK_VERIFY_IP}")
 fi
-curl "${verify_args[@]}" --fail --silent --show-error --retry 3 --retry-delay 1 https://natocheck.eventhacker.de/ | grep -q 'NatoCheck'
+curl "${verify_args[@]}" --fail --silent --show-error --retry 3 --retry-delay 1 https://natocheck.eventhacker.de/ | grep -F 'NatoCheck' >/dev/null
 curl "${verify_args[@]}" --fail --silent --show-error -H 'Content-Type: application/json' --data '{"mode":"letter"}' https://natocheck.eventhacker.de/api/trainer/task | "$local_python" -c 'import json,sys; task=json.load(sys.stdin); assert len(task["prompt"]) == 1 and task["id"]'
 if "$local_python" scripts/check-live-speech.py --tts-script "$tts_script"; then
     live_status=live_verified
