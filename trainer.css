@@ -58,7 +58,8 @@ body:not(.playing) [data-challenge-workspace] { display: none; }
 .training-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;border:0;background:#0b0f14e6;padding:18px 24px;font-size:16px;white-space:nowrap;box-shadow:0 4px 24px #0008}
 .training-play .play-icon{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--mint);color:var(--bg);font-size:28px;padding-left:4px}
 .training-play:hover:enabled{background:#0b0f14}
-.training-credit{font-size:14px;overflow-wrap:anywhere}
+.training-credit{font-size:14px;overflow-wrap:anywhere;border-left:3px solid var(--mint);padding:14px 16px;background:#0B0F14;border-radius:0 8px 8px 0}
+.training-credit strong{font-size:16px;color:var(--ink)}
 .playing .training-panel{display:none}
 .usage-stats{margin-top:20px}
 .usage-stats .section-head p,.stats-note{font-size:14px}

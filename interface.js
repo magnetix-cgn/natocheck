@@ -2,6 +2,9 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Video von Ron White": "Video by Ron White",
+    "YouTube-Kanal:": "YouTube channel:",
+    "Originalvideo:": "Original video:",
     "NatoCheck in Zahlen": "NatoCheck in numbers",
     "Challenges gespielt": "Challenges played",
     "Heute gespielt": "Played today",
