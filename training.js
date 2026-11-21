@@ -1,6 +1,5 @@
 'use strict';
 
-const trainingToggle = document.getElementById('trainingToggle');
 const trainingPanel = document.getElementById('trainingPanel');
 const trainingVideo = document.getElementById('trainingVideo');
 const trainingPlay = document.getElementById('trainingPlay');
@@ -19,11 +18,6 @@ function playTraining() {
     });
 }
 
-trainingToggle.addEventListener('click', () => {
-    playTraining();
-    trainingPanel.scrollIntoView({block: 'center'});
-    trainingVideo.focus();
-});
 trainingPlay.addEventListener('click', playTraining);
 document.getElementById('trainingSound').addEventListener('click', () => {
     trainingVideo.volume = 1;
@@ -38,6 +32,7 @@ document.getElementById('gameStart').addEventListener('click', () => {
 document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && trainingPanel.contains(document.activeElement) && !document.fullscreenElement) {
         trainingVideo.pause();
-        trainingToggle.focus();
+        trainingPlay.hidden = false;
+        trainingPlay.focus();
     }
 });

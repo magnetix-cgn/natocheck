@@ -63,13 +63,13 @@ added to this statistics file. Restarting the service preserves stored totals.
 
 Ron White's English video, *Memorize NATO Phonetic Alphabet in 7 minutes
 (EASY!)* (7:44), appears directly on the page with its original thumbnail and a
-large **Play video** button. Playback starts after clicking Play or **Training**.
-The adjacent **YouTube**
-button links to [the original](https://www.youtube.com/watch?v=j7GLe1XDSAE).
+large **Play video** button. Playback starts directly in the player. The credit
+below it links to [the original](https://www.youtube.com/watch?v=j7GLe1XDSAE)
+and the creator's YouTube channel.
 Starting a challenge pauses playback. Both interface
 languages include the training controls and source attribution.
 
-Explicit Play and Training actions clear the player's mute flag and restore a
+Explicit Play actions clear the player's mute flag and restore a
 zero player volume. **Enable sound** also restores full player volume and starts
 playback. These controls affect the video element; device volume and the selected
 speaker, headphones or casting destination remain under device control.

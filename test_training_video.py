@@ -85,7 +85,8 @@ class TrainingVideoTests(unittest.TestCase):
     def test_training_controls_credit_source_and_visible_poster(self):
         status, _, body = self.request('/')
         self.assertEqual(status, 200)
-        self.assertLess(body.index(b'id="trainingToggle"'), body.index(b'>YouTube</a>'))
+        self.assertNotIn(b'id="trainingToggle"', body)
+        self.assertNotIn(b'class="training-actions"', body)
         self.assertIn(VIDEO_URL.encode(), body)
         self.assertNotIn(b'{{TRAINING_VIDEO_URL}}', body)
         self.assertIn(b'https://www.youtube.com/watch?v=j7GLe1XDSAE', body)

@@ -119,7 +119,7 @@ reuse the verified existing file without the environment variable. Application
 source still comes only from the pushed Git release. An unsuccessful release
 can leave the checkout updated; use the recovery procedure described above.
 
-Verify the Training/YouTube order, initially visible thumbnail and Play button,
+Verify the initially visible thumbnail, Play button and source links in the credit,
 DE/EN text, playback, seeking and pause-on-challenge behavior on desktop and
 mobile. Do not expose the intake share.
 
