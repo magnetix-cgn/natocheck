@@ -76,4 +76,6 @@ body:not(.playing) [data-challenge-workspace] { display: none; }
 h1{font-size:clamp(30px,4.6vw,56px);line-height:1.2;letter-spacing:-.025em}
 h1,h2{overflow-wrap:break-word}
 .headline-phrase{display:inline-block;max-width:100%}h1 .headline-phrase{color:var(--ink)}
+.share-badge{display:inline-flex;align-items:center;min-height:46px;margin-top:8px;padding:12px 18px;border:1px solid #25d366;border-radius:9px;background:#25d366;color:#0B0F14;font-size:14px;font-weight:700;text-decoration:none;line-height:1.5}
+.share-badge:hover{background:#5de18d;border-color:#5de18d}
 @media(max-width:370px){.brand{gap:12px}.wordmark{font-size:21px}.interface-language button{padding:8px 10px}}

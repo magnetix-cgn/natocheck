@@ -2,6 +2,7 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Per WhatsApp weiterempfehlen ↗": "Share on WhatsApp ↗",
     "Ton einschalten": "Enable sound",
     "Ton einschalten und Video abspielen": "Enable sound and play video",
     "Video von Ron White": "Video by Ron White",
@@ -189,6 +190,10 @@ document.querySelectorAll('[aria-label], [placeholder]').forEach(element => {
 const originalTitle = document.title;
 function applyInterfaceLanguage() {
     document.documentElement.lang = interfaceLanguage;
+    const shareMessage = interfaceLanguage === 'en'
+        ? 'Ready for a challenge? Test your NATO alphabet with NatoCheck: https://natocheck.eventhacker.de/?lang=en'
+        : 'Lust auf eine Challenge? Teste dein NATO-Alphabet mit NatoCheck: https://natocheck.eventhacker.de/';
+    document.getElementById('whatsappShare').href = 'https://wa.me/?text=' + encodeURIComponent(shareMessage);
     document.title = translate(originalTitle);
     for (const [node, original] of staticTexts) {
         if (node.isConnected) node.textContent = translate(original);
