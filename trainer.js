@@ -113,7 +113,8 @@ async function checkAnswer(text, source) {
     setPhase('checking', 'Antwort wird verglichen …');
     uiText('error', '');
     try {
-        const result = await request('/api/trainer/check', {task_id: task.id, text});
+        const inputSource = {'SPRACHERKENNUNG': 'speech', 'TEXTEINGABE': 'text', 'MANUELL KORRIGIERT': 'correction'}[source] || 'unspecified';
+        const result = await request('/api/trainer/check', {task_id: task.id, text, source: inputSource});
         el('answer').hidden = false;
         uiText('answerSource', source);
         if (source !== 'MANUELL KORRIGIERT') rawTranscript = text;

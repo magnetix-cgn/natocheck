@@ -74,8 +74,42 @@ shows the separate detail start date, the number of scored games underlying the
 average and the number without a recorded pace. Older API clients can omit the
 pace; their new scores contribute to the overall average but remain unclassified
 by pace. Empty averages display a dash. Only aggregate score sums and counts are
-persisted, never individual answers, game records or participant identities.
+persisted in this aggregate file, never individual answers or participant identities.
 This is an average over games, not unique participants; repeat games count separately.
+
+## Private result history
+
+Every successful evaluation now also appends an event to
+`NATOCHECK_DATA_DIR/results/results-YYYY-MM-DD.jsonl` (UTC date). Production uses
+`/var/lib/natocheck/recordings/results/`. The directory is private (0700), files
+are created with mode 0600, and there is no public download route. Files remain
+outside Git, survive service restarts and are not automatically expired. Preserve
+them in the existing private runtime backup before later statistical processing.
+Historical aggregate totals cannot reconstruct individual earlier results.
+
+Each UTF-8 JSON line contains a schema version, event ID, an anonymous result ID
+(separate from the API task identifier), UTC evaluation time, application release,
+mode, pace in milliseconds, source, evaluation number, first-evaluation marker,
+public-statistics eligibility, score, correct/total counts, pass flag and per-letter
+outcome states. Source is a validated, client-reported label: `speech`, `text`,
+`correction`, `synthetic` or `unspecified` for older clients. It is not proof of
+input provenance. Live speech acceptance is explicitly marked `synthetic`.
+
+Challenge and free-training results are included. Repeated checks have separate
+events with the same anonymous result ID and increasing evaluation numbers.
+Use first-evaluation challenge events for the public-statistics population; retain
+corrections separately. No raw transcript, user-entered text, audio, request task
+identifier, name, IP address, cookie or participant identifier is added to the
+result history. Per-letter outcomes store only the prompted letter and outcome
+state; extra words have an empty letter, and their text is never retained.
+
+Events are appended under a file lock and synchronized before a successful
+evaluation response. On write failure the append is rolled back and the HTTP API
+returns 503 without advancing the evaluation or public counts, allowing a retry.
+An incomplete existing final line is preserved and blocks appending for manual
+inspection. Public aggregate writes remain separate; their existing pending-write
+retry behavior is unchanged, so the result history is not an atomic transaction
+with the public counters. Unfinished and invalid answers create no result event.
 
 ## Training video
 

@@ -18,6 +18,7 @@ from recognition_worker import RecognitionWorker
 from recording import MAX_UPLOAD_BYTES, UncertainSpeechError
 from training_video import VIDEO_FILENAME, VIDEO_URL, serve_training_video
 from game_stats import GameStats
+from result_log import ResultLog
 
 BASE = Path(__file__).resolve().parent
 
@@ -42,7 +43,7 @@ LOG = logging.getLogger('natocheck')
 class Application:
     def __init__(self, output):
         self.stats = GameStats(output / 'game-stats.json')
-        self.trainer = Trainer(self.stats)
+        self.trainer = Trainer(self.stats, ResultLog(output / 'results', APP_VERSION))
         self.recognizer = RecognitionWorker()
         self.output = output
         self.jobs = collections.OrderedDict()
@@ -215,7 +216,12 @@ def handler(app, hosts):
                 if path == '/api/trainer/task':
                     return self.send(200, app.trainer.new(value.get('mode'), value.get('speed_ms')))
                 if path == '/api/trainer/check':
-                    return self.send(200, app.trainer.check(value.get('task_id'), value.get('text')))
+                    try:
+                        result = app.trainer.check(value.get('task_id'), value.get('text'), value.get('source', 'unspecified'))
+                    except OSError:
+                        LOG.exception('Could not persist result event')
+                        return self.send(503, {'error': 'Result could not be saved; please try checking again'})
+                    return self.send(200, result)
                 return self.send(404, {'error': 'Not found'})
             except (ValueError, UnicodeDecodeError) as error:
                 return self.send(400, {'error': str(error)})

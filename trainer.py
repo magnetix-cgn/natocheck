@@ -81,10 +81,11 @@ def compare(prompt, text):
 
 
 class Trainer:
-    def __init__(self, stats=None):
+    def __init__(self, stats=None, results=None):
         self.tasks = collections.OrderedDict()
         self.lock = threading.Lock()
         self.stats = stats
+        self.results = results
 
     def new(self, mode, speed_ms=None):
         if speed_ms is not None and (mode != 'challenge' or type(speed_ms) is not int or speed_ms not in SPEEDS):
@@ -103,19 +104,25 @@ class Trainer:
             raise ValueError('Choose letter, word or sequence')
         task = dict(id=uuid.uuid4().hex, mode=mode, prompt=prompt)
         with self.lock:
-            self.tasks[task['id']] = dict(task, counted=False, speed_ms=speed_ms)
+            self.tasks[task['id']] = dict(task, counted=False, speed_ms=speed_ms,
+                                          result_id=uuid.uuid4().hex, evaluations=0)
             if len(self.tasks) > 200:
                 self.tasks.popitem(last=False)
         return task
 
-    def check(self, task_id, text):
+    def check(self, task_id, text, source='unspecified'):
         if not isinstance(task_id, str):
             raise ValueError('A task identifier is required')
+        if source not in ('speech', 'text', 'correction', 'synthetic', 'unspecified'):
+            raise ValueError('Choose speech, text, correction, synthetic or unspecified result source')
         with self.lock:
             task = self.tasks.get(task_id)
             if task is None:
                 raise ValueError('This exercise has expired; request a new exercise')
             result = compare(task['prompt'], text)
+            if self.results is not None:
+                self.results.record(task, result, source)
+            task['evaluations'] += 1
             if self.stats is not None and task['mode'] == 'challenge' and not task['counted']:
                 task['counted'] = True
                 try:

@@ -188,6 +188,15 @@ class GameStatsTests(unittest.TestCase):
                                            'unclassified_completed', 'by_speed'})
             self.assertNotIn(task['id'], json.dumps(result))
             self.assertEqual(request('/game-stats.json')[0], 404)
+            journals = list((self.path.parent / 'results').glob('*.jsonl'))
+            self.assertEqual(len(journals), 1)
+            events = [json.loads(line) for line in journals[0].read_text().splitlines()]
+            self.assertEqual(len(events), 2)
+            self.assertEqual([event['first_evaluation'] for event in events], [True, False])
+            self.assertEqual(request('/results/' + journals[0].name)[0], 404)
+            with patch.object(app.trainer.results, 'record', side_effect=OSError('disk unavailable')):
+                with self.assertLogs('natocheck', level='ERROR'):
+                    self.assertEqual(request('/api/trainer/check', {'task_id': task['id'], 'text': answer})[0], 503)
             app.stats = GameStats(self.path.parent / 'corrupt.json')
             app.stats.path.write_text('broken')
             with self.assertLogs('natocheck', level='ERROR'):

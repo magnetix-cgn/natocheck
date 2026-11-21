@@ -131,7 +131,7 @@ def main():
                 raise RuntimeError('Live recognition failed: ' + job.get('error', 'timeout'))
             format_result['transcript'] = job['text']
             format_result['recognition_seconds'] = job.get('elapsed_seconds')
-            result = request('/api/trainer/check', {'task_id': task['id'], 'text': job['text']})
+            result = request('/api/trainer/check', {'task_id': task['id'], 'text': job['text'], 'source': 'synthetic'})
             format_result['result'] = result
             if not result['passed'] or result['score'] != 100:
                 raise RuntimeError('Live speech comparison failed: ' + job['text'])

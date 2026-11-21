@@ -2,6 +2,7 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Ergebnisse werden ohne Namen, Antworttexte oder Aufnahmen für spätere Statistiken gespeichert.": "Results are saved for future statistics without names, answer text or recordings.",
     "Durchschnittliche Trefferquote": "Average score",
     "Abgeschlossene Challenges nach Tempo": "Completed challenges by pace",
     "Sekunden pro Buchstabe": "Seconds per letter",
