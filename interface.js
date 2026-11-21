@@ -2,6 +2,13 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "NatoCheck in Zahlen": "NatoCheck in numbers",
+    "Challenges gespielt": "Challenges played",
+    "Heute gespielt": "Played today",
+    "Perfekte Runden": "Perfect rounds",
+    "Nutzungszahlen werden geladen …": "Loading usage statistics …",
+    "Nutzungszahlen sind gerade nicht verfügbar.": "Usage statistics are temporarily unavailable.",
+    "Jede erstmals ausgewertete 10-Buchstaben-Challenge zählt einmal. Heute gilt nach deutscher Ortszeit.": "Each 10-letter challenge counts once, on its first evaluation. Today uses German local time.",
     "Trainingsvideo abspielen": "Play training video",
     "Video abspielen": "Play video",
     "Das Video konnte nicht gestartet werden. Bitte versuche es erneut oder öffne das Original auf YouTube.": "The video could not start. Please try again or open the original on YouTube.",

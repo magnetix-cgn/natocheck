@@ -17,6 +17,7 @@ from trainer import ALPHABET, Trainer
 from recognition_worker import RecognitionWorker
 from recording import MAX_UPLOAD_BYTES, UncertainSpeechError
 from training_video import VIDEO_FILENAME, VIDEO_URL, serve_training_video
+from game_stats import GameStats
 
 BASE = Path(__file__).resolve().parent
 
@@ -40,7 +41,8 @@ LOG = logging.getLogger('natocheck')
 
 class Application:
     def __init__(self, output):
-        self.trainer = Trainer()
+        self.stats = GameStats(output / 'game-stats.json')
+        self.trainer = Trainer(self.stats)
         self.recognizer = RecognitionWorker()
         self.output = output
         self.jobs = collections.OrderedDict()
@@ -144,6 +146,7 @@ def handler(app, hosts):
                 return serve_training_video(self, app.output / 'training' / VIDEO_FILENAME)
             files = {'/': ('trainer.html', 'text/html'), '/trainer.js': ('trainer.js', 'text/javascript'),
                      '/training.js': ('training.js', 'text/javascript'),
+                     '/stats.js': ('stats.js', 'text/javascript'),
                      '/trainer.css': ('trainer.css', 'text/css'),
                      '/interface.js': ('interface.js', 'text/javascript'),
                      '/assets/nato-training.webp': ('assets/nato-training.webp', 'image/webp'),
@@ -157,6 +160,12 @@ def handler(app, hosts):
                 return self.send(200, content, mime)
             if path == '/api/trainer/alphabet':
                 return self.send(200, ALPHABET)
+            if path == '/api/stats':
+                try:
+                    return self.send(200, app.stats.snapshot())
+                except (OSError, ValueError, KeyError, TypeError):
+                    LOG.exception('Public challenge statistics unavailable')
+                    return self.send(503, {'error': 'Statistics temporarily unavailable'})
             if re.fullmatch(r'/api/transcriptions/[a-f0-9]{32}', path):
                 try:
                     return self.send(200, app.status(path.rsplit('/', 1)[1]))

@@ -1,5 +1,6 @@
 """Local NATO spelling exercises and deterministic transcript comparison."""
 import collections
+import logging
 import re
 import secrets
 import string
@@ -79,9 +80,10 @@ def compare(prompt, text):
 
 
 class Trainer:
-    def __init__(self):
+    def __init__(self, stats=None):
         self.tasks = collections.OrderedDict()
         self.lock = threading.Lock()
+        self.stats = stats
 
     def new(self, mode):
         if mode == 'letter':
@@ -98,7 +100,7 @@ class Trainer:
             raise ValueError('Choose letter, word or sequence')
         task = dict(id=uuid.uuid4().hex, mode=mode, prompt=prompt)
         with self.lock:
-            self.tasks[task['id']] = task
+            self.tasks[task['id']] = dict(task, counted=False)
             if len(self.tasks) > 200:
                 self.tasks.popitem(last=False)
         return task
@@ -108,6 +110,14 @@ class Trainer:
             raise ValueError('A task identifier is required')
         with self.lock:
             task = self.tasks.get(task_id)
-        if task is None:
-            raise ValueError('This exercise has expired; request a new exercise')
-        return compare(task['prompt'], text)
+            if task is None:
+                raise ValueError('This exercise has expired; request a new exercise')
+            result = compare(task['prompt'], text)
+            if self.stats is not None and task['mode'] == 'challenge' and not task['counted']:
+                task['counted'] = True
+                try:
+                    self.stats.record(result['passed'])
+                except (OSError, ValueError, KeyError, TypeError):
+                    # Statistics must not interrupt grading; pending writes are retried on reads.
+                    logging.getLogger('natocheck').exception('Could not persist challenge statistics')
+            return result

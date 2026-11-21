@@ -2,6 +2,11 @@
 
 Status: prepared locally; initial monitoring installation requires approval.
 
+This document covers the proposed Grafana request board. The public facts card
+described in the main README instead uses persistent aggregate challenge counters
+inside the existing app. It does not infer game totals from requests and does not
+install this monitoring service, timer or dashboard.
+
 The proposed board is `NatoCheck Usage` (UID `natocheck-usage`) at
 `https://monitor.eventhacker.de/d/natocheck-usage/natocheck-usage`.
 It uses the verified existing `prometheus-local` datasource and the existing

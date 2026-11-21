@@ -354,6 +354,7 @@ function runChallenge() {
 
 function finishGame(result) {
     game.active = false;
+    document.dispatchEvent(new Event('challengecomplete'));
     uiText('gameSummaryTitle', `${result.correct} von 10 richtig · ${result.score} %`);
     uiText('gameSummaryText', result.passed
         ? 'Challenge geschafft! Alle zehn Codewörter in der richtigen Reihenfolge.'

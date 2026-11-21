@@ -37,6 +37,28 @@ recognized text; it does not assess pronunciation quality.
 Reference: [Bundeswehr NATO alphabet](https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet).
 The official codewords displayed include Alfa and Juliett.
 
+## Public game statistics
+
+The public facts card shows evaluated ten-letter challenges, challenges evaluated
+today and perfect first evaluations. The first valid evaluation of each challenge
+counts once, including an imperfect result. Rechecks and later corrections cannot
+increase the counts or turn a previous imperfect round into a perfect one.
+Unfinished challenges, page loads, other exercise modes and the four-letter live
+speech acceptance are excluded. These are game counts, not unique visitor counts.
+
+Counting begins with the first use of this release and the date is displayed.
+Earlier access logs cannot establish unique completed challenges, so no historical
+game total is inferred. Today follows `Europe/Berlin`. Values refresh every minute,
+when returning to the page and after a completed challenge. Unavailable values
+show a clear unavailable state instead of zero.
+
+Only aggregate counts, the start timestamp and the current daily date are stored
+in `game-stats.json` under `NATOCHECK_DATA_DIR`, outside Git. The existing single
+application process serializes writes and replaces the file atomically. Pending
+writes are retried on reads; invalid existing state is preserved and reported as
+unavailable. No visitor identifiers, recordings, answers or per-game records are
+added to this statistics file. Restarting the service preserves stored totals.
+
 ## Training video
 
 Ron White's English video, *Memorize NATO Phonetic Alphabet in 7 minutes
