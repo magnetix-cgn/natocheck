@@ -381,6 +381,10 @@ function toggleAlphabet() {
     el('alphabetPanel').hidden = !visible;
     el('alphabetToggle').setAttribute('aria-expanded', String(visible));
     uiText('alphabetToggle', visible ? 'NATO-Alphabet ausblenden' : 'NATO-Alphabet einblenden');
+    if (visible) {
+        el('alphabet-title').focus({preventScroll: true});
+        el('alphabetPanel').scrollIntoView({block: 'start'});
+    }
     if (visible && game.active && !game.graded) {
         game.hinted = true;
         renderGame();

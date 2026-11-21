@@ -26,7 +26,9 @@ the default. Interface language does not change the English-only recognizer.
 - Free training supports manual recording, typed answers and transcript correction.
 - Recording uses the default microphone and English recognition only. There is no
   microphone settings card or language selector; the server also enforces English.
-- The **NATO-Alphabet einblenden** button opens the reference table.
+- The **NATO-Alphabet einblenden** button opens the reference table directly
+  below the header, focuses its heading and scrolls it into view. Closing the
+  table returns focus to the header button.
 
 The comparison checks codewords and their order, including missing and extra
 words. It accepts explicit transcription variants such as Alpha/Alfa,
