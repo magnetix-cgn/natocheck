@@ -7,6 +7,7 @@ import string
 import threading
 import unicodedata
 import uuid
+from game_stats import SPEEDS
 
 
 ALPHABET = dict(zip(string.ascii_uppercase, (
@@ -85,7 +86,9 @@ class Trainer:
         self.lock = threading.Lock()
         self.stats = stats
 
-    def new(self, mode):
+    def new(self, mode, speed_ms=None):
+        if speed_ms is not None and (mode != 'challenge' or type(speed_ms) is not int or speed_ms not in SPEEDS):
+            raise ValueError('Choose a challenge speed of 1000, 2000, 3000 or 5000 milliseconds')
         if mode == 'letter':
             prompt = secrets.choice(string.ascii_uppercase)
         elif mode == 'word':
@@ -100,7 +103,7 @@ class Trainer:
             raise ValueError('Choose letter, word or sequence')
         task = dict(id=uuid.uuid4().hex, mode=mode, prompt=prompt)
         with self.lock:
-            self.tasks[task['id']] = dict(task, counted=False)
+            self.tasks[task['id']] = dict(task, counted=False, speed_ms=speed_ms)
             if len(self.tasks) > 200:
                 self.tasks.popitem(last=False)
         return task
@@ -116,7 +119,7 @@ class Trainer:
             if self.stats is not None and task['mode'] == 'challenge' and not task['counted']:
                 task['counted'] = True
                 try:
-                    self.stats.record(result['passed'])
+                    self.stats.record(result['passed'], speed_ms=task['speed_ms'], score=result['score'])
                 except (OSError, ValueError, KeyError, TypeError):
                     # Statistics must not interrupt grading; pending writes are retried on reads.
                     logging.getLogger('natocheck').exception('Could not persist challenge statistics')

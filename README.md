@@ -61,6 +61,22 @@ writes are retried on reads; invalid existing state is preserved and reported as
 unavailable. No visitor identifiers, recordings, answers or per-game records are
 added to this statistics file. Restarting the service preserves stored totals.
 
+The statistics also show completed challenges and average scores for each pace
+(1, 2, 3 and 5 seconds per letter), plus the overall average score. The browser
+sends `speed_ms` when requesting a challenge; the server validates it and binds
+it to that task. Only the first valid evaluation contributes its displayed score
+(0–100, including penalties for extra words). Rechecks cannot change the pace,
+counts or averages. No scores are recorded for unfinished or ungraded challenges.
+
+Existing aggregate files are extended automatically without resetting their counts.
+Historical games retain their totals but have no inferred pace or score. The page
+shows the separate detail start date, the number of scored games underlying the
+average and the number without a recorded pace. Older API clients can omit the
+pace; their new scores contribute to the overall average but remain unclassified
+by pace. Empty averages display a dash. Only aggregate score sums and counts are
+persisted, never individual answers, game records or participant identities.
+This is an average over games, not unique participants; repeat games count separately.
+
 ## Training video
 
 Ron White's English video, *Memorize NATO Phonetic Alphabet in 7 minutes

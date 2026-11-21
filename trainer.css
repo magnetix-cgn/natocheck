@@ -67,6 +67,9 @@ body:not(.playing) [data-challenge-workspace] { display: none; }
 .stats-grid dt{color:var(--muted);font-size:14px;line-height:1.5}
 .stats-grid dd{margin:8px 0 0;color:var(--mint);font-size:clamp(26px,4vw,40px);font-weight:700;overflow-wrap:anywhere}
 .stats-note{margin:6px 0;color:var(--muted)}
+.usage-stats .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.speed-stats{margin:22px 0}.speed-stats caption{text-align:left;color:var(--ink);font-weight:600;margin-bottom:12px}.speed-stats tbody th{color:var(--ink);font-size:14px;text-transform:none}
+@media(max-width:650px){.usage-stats .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .playing .usage-stats{display:none}
 @media(max-width:480px){.stats-grid{gap:10px}.stats-grid div{padding-left:9px}.stats-grid dt{font-size:14px}}
 

@@ -2,6 +2,12 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Durchschnittliche Trefferquote": "Average score",
+    "Abgeschlossene Challenges nach Tempo": "Completed challenges by pace",
+    "Sekunden pro Buchstabe": "Seconds per letter",
+    "Abgeschlossen": "Completed",
+    "Ø Trefferquote": "Average score",
+    "Der Durchschnitt basiert auf der ersten Wertung jeder erfassten Challenge. Wiederholte Spiele derselben Person zählen einzeln; Korrekturen ändern die Statistik nicht.": "The average uses the first evaluation of each recorded challenge. Repeat games by the same person count separately; corrections do not change the statistics.",
     "Per WhatsApp weiterempfehlen ↗": "Share on WhatsApp ↗",
     "Ton einschalten": "Enable sound",
     "Ton einschalten und Video abspielen": "Enable sound and play video",

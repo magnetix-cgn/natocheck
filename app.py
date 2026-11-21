@@ -213,7 +213,7 @@ def handler(app, hosts):
                 if not isinstance(value, dict):
                     raise ValueError('Expected an object')
                 if path == '/api/trainer/task':
-                    return self.send(200, app.trainer.new(value.get('mode')))
+                    return self.send(200, app.trainer.new(value.get('mode'), value.get('speed_ms')))
                 if path == '/api/trainer/check':
                     return self.send(200, app.trainer.check(value.get('task_id'), value.get('text')))
                 return self.send(404, {'error': 'Not found'})

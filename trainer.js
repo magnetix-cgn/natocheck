@@ -314,7 +314,7 @@ async function startGame() {
     renderGame();
     setPhase('loading', 'Zehn Buchstaben werden vorbereitet …');
     try {
-        task = await request('/api/trainer/task', {mode: 'challenge'});
+        task = await request('/api/trainer/task', {mode: 'challenge', speed_ms: game.interval});
         await startRecording();
     } catch (error) { fail(error); }
 }
