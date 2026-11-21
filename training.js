@@ -8,6 +8,10 @@ const trainingError = document.getElementById('trainingError');
 
 function playTraining() {
     trainingError.hidden = true;
+    // An explicit Play action must not inherit a muted or zero-volume state.
+    trainingVideo.defaultMuted = false;
+    trainingVideo.muted = false;
+    if (trainingVideo.volume === 0) trainingVideo.volume = 1;
     trainingVideo.focus();
     trainingVideo.play().catch(() => {
         trainingPlay.hidden = false;
@@ -21,6 +25,10 @@ trainingToggle.addEventListener('click', () => {
     trainingVideo.focus();
 });
 trainingPlay.addEventListener('click', playTraining);
+document.getElementById('trainingSound').addEventListener('click', () => {
+    trainingVideo.volume = 1;
+    playTraining();
+});
 trainingVideo.addEventListener('play', () => { trainingPlay.hidden = true; });
 trainingVideo.addEventListener('pause', () => { trainingPlay.hidden = false; });
 trainingVideo.addEventListener('ended', () => { trainingPlay.hidden = false; });

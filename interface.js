@@ -2,6 +2,8 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Ton einschalten": "Enable sound",
+    "Ton einschalten und Video abspielen": "Enable sound and play video",
     "Video von Ron White": "Video by Ron White",
     "YouTube-Kanal:": "YouTube channel:",
     "Originalvideo:": "Original video:",

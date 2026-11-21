@@ -69,6 +69,11 @@ button links to [the original](https://www.youtube.com/watch?v=j7GLe1XDSAE).
 Starting a challenge pauses playback. Both interface
 languages include the training controls and source attribution.
 
+Explicit Play and Training actions clear the player's mute flag and restore a
+zero player volume. **Enable sound** also restores full player volume and starts
+playback. These controls affect the video element; device volume and the selected
+speaker, headphones or casting destination remain under device control.
+
 The original and a 720p H.264/AAC MP4 derivative are delivered through the
 configured private Nextcloud AgentUp. Only a verified derivative is copied into
 runtime storage, outside Git, and served through a fixed content-addressed URL
