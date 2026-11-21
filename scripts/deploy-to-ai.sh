@@ -13,11 +13,28 @@ command -v espeak-ng >/dev/null || command -v espeak >/dev/null
 git fetch origin main
 release_sha="$(git rev-parse HEAD)"
 [[ "$release_sha" == "$(git rev-parse origin/main)" ]] || { echo 'Push and review origin/main before deploying.' >&2; exit 1; }
-ssh -o BatchMode=yes -o ConnectTimeout=15 "${NATOCHECK_SSH_TARGET:-root@ai}" bash -s -- "$release_sha" "${NATOCHECK_DEPENDENCIES_READY:-}" <<'REMOTE'
+training_upload=''
+ssh_target="${NATOCHECK_SSH_TARGET:-root@ai}"
+if [[ -n "${NATOCHECK_TRAINING_VIDEO:-}" ]]; then
+    "$local_python" - "$NATOCHECK_TRAINING_VIDEO" <<'CHECK_MEDIA'
+import hashlib, json, pathlib, sys
+manifest = json.loads(pathlib.Path('training-video.json').read_text())
+source = pathlib.Path(sys.argv[1])
+with source.open('rb') as media:
+    checksum = hashlib.file_digest(media, 'sha256').hexdigest()
+assert source.stat().st_size == manifest['bytes'] and checksum == manifest['sha256'], 'Training media does not match the release manifest'
+CHECK_MEDIA
+    training_upload="$(ssh -o BatchMode=yes -o ConnectTimeout=15 "$ssh_target" 'mktemp /tmp/natocheck-training.XXXXXXXX.mp4')"
+    [[ "$training_upload" =~ ^/tmp/natocheck-training\.[A-Za-z0-9]{8}\.mp4$ ]]
+    trap 'ssh -o BatchMode=yes -o ConnectTimeout=15 "$ssh_target" "rm -f -- $training_upload"' EXIT
+    scp -q "$NATOCHECK_TRAINING_VIDEO" "$ssh_target:$training_upload"
+fi
+ssh -o BatchMode=yes -o ConnectTimeout=15 "$ssh_target" bash -s -- "$release_sha" "${NATOCHECK_DEPENDENCIES_READY:-}" "$training_upload" <<'REMOTE'
 set -euo pipefail
 cd /var/www/natocheck
 release_sha="$1"
 dependencies_ready="${2:-}"
+training_upload="${3:-}"
 exec 9>.git/deploy.lock
 flock -n 9 || { echo 'Another deployment is running.' >&2; exit 1; }
 [[ "$(git branch --show-current)" == main ]]
@@ -44,6 +61,32 @@ printf '%s previous=%s target=%s status=started\n' "$(date -u +%FT%TZ)" "$previo
 trap 'printf "%s target=%s status=failed\n" "$(date -u +%FT%TZ)" "$release_sha" >> .git/deploy.log' ERR
 git merge --ff-only "$release_sha"
 /home/magnetix/projects/xvx/xvx-venv/bin/python -m unittest discover -v
+# Install only verified runtime media; application source comes from Git above.
+/home/magnetix/projects/xvx/xvx-venv/bin/python - "$training_upload" <<'INSTALL_MEDIA'
+import grp, hashlib, json, os, pathlib, shutil, sys
+manifest = json.loads(pathlib.Path('training-video.json').read_text())
+folder = pathlib.Path('/var/lib/natocheck/recordings/training')
+target = folder / (manifest['sha256'] + '.mp4')
+def verify(path):
+    with path.open('rb') as source:
+        checksum = hashlib.file_digest(source, 'sha256').hexdigest()
+    assert path.stat().st_size == manifest['bytes'] and checksum == manifest['sha256'], 'Training media checksum mismatch'
+if target.exists():
+    verify(target)
+else:
+    assert sys.argv[1], 'Provide the verified AgentUp readback with NATOCHECK_TRAINING_VIDEO'
+    source = pathlib.Path(sys.argv[1])
+    verify(source)
+    folder.mkdir(mode=0o750, parents=True, exist_ok=True)
+    os.chown(folder, 0, grp.getgrnam('natocheck').gr_gid)
+    temporary = target.with_suffix('.tmp')
+    shutil.copyfile(source, temporary)
+    os.chmod(temporary, 0o640)
+    os.chown(temporary, 0, grp.getgrnam('natocheck').gr_gid)
+    verify(temporary)
+    temporary.replace(target)
+print('Pinned training media verified')
+INSTALL_MEDIA
 if [[ "$apache_changed" == true ]]; then
     # Execute as the already authorized root release operator.
     apache_backup=".git/apache-${previous_sha}.conf"

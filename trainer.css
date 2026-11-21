@@ -48,3 +48,11 @@ body:not(.playing) [data-challenge-workspace] { display: none; }
 .game-status { flex-basis: 100%; }
 .recording-tip { color: var(--ink); }
 .game-launch { flex-wrap: wrap; }
+.training-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;align-items:center}
+.training-actions button,.training-link{display:inline-flex;justify-content:center;align-items:center;min-height:46px;padding:13px 20px;border:1px solid var(--mint);border-radius:9px;font-size:16px;font-weight:600;text-decoration:none}
+.training-actions button{background:var(--mint);color:var(--bg)}
+.training-link:hover{background:#142c42}
+.training-panel{margin-bottom:20px}
+.training-panel video{display:block;width:100%;max-height:65vh;margin-top:20px;background:#000;aspect-ratio:16/9;border-radius:8px}
+.training-credit{font-size:14px;overflow-wrap:anywhere}
+.playing .training-panel{display:none}

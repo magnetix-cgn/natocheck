@@ -37,6 +37,20 @@ recognized text; it does not assess pronunciation quality.
 Reference: [Bundeswehr NATO alphabet](https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet).
 The official codewords displayed include Alfa and Juliett.
 
+## Training video
+
+The **Training** button opens Ron White's English video, *Memorize NATO Phonetic
+Alphabet in 7 minutes (EASY!)* (7:44), without autoplay. The adjacent **YouTube**
+button links to [the original](https://www.youtube.com/watch?v=j7GLe1XDSAE).
+Closing the player or starting a challenge pauses playback. Both interface
+languages include the training controls and source attribution.
+
+The original and a 720p H.264/AAC MP4 derivative are delivered through the
+configured private Nextcloud AgentUp. Only a verified derivative is copied into
+runtime storage, outside Git, and served through a fixed content-addressed URL
+with byte-range support. Private intake links never enter the page or repository.
+`training-video.json` pins the public source attribution, byte count and SHA-256.
+
 The interface follows the Eventhacker profile palette (blue `#00AEEF`, deep black
 `#0B0F14`, neutral gray `#2D2D33`, steel gray and white). The profile does not
 bundle its licensed fonts, so the interface retains its local sans-serif fallback.

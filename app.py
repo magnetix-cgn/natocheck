@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 from trainer import ALPHABET, Trainer
 from recognition_worker import RecognitionWorker
 from recording import MAX_UPLOAD_BYTES, UncertainSpeechError
+from training_video import VIDEO_FILENAME, VIDEO_URL, serve_training_video
 
 BASE = Path(__file__).resolve().parent
 
@@ -125,7 +126,8 @@ def handler(app, hosts):
             self.send_header('Referrer-Policy', 'same-origin')
             self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'")
             self.end_headers()
-            self.wfile.write(data)
+            if self.command != 'HEAD':
+                self.wfile.write(data)
 
         def allowed(self):
             host = self.headers.get('Host')
@@ -138,7 +140,10 @@ def handler(app, hosts):
             if not self.allowed():
                 return self.send(403, {'error': 'Host or origin not allowed'})
             path = urlparse(self.path).path
+            if path == VIDEO_URL:
+                return serve_training_video(self, app.output / 'training' / VIDEO_FILENAME)
             files = {'/': ('trainer.html', 'text/html'), '/trainer.js': ('trainer.js', 'text/javascript'),
+                     '/training.js': ('training.js', 'text/javascript'),
                      '/trainer.css': ('trainer.css', 'text/css'),
                      '/interface.js': ('interface.js', 'text/javascript'),
                      '/assets/eventhacker-logo-white.webp': ('assets/eventhacker-logo-white.webp', 'image/webp')}
@@ -147,6 +152,7 @@ def handler(app, hosts):
                 content = (BASE / filename).read_bytes()
                 if filename == 'trainer.html':
                     content = content.replace(b'{{APP_VERSION}}', escape(APP_VERSION).encode('utf-8'))
+                    content = content.replace(b'{{TRAINING_VIDEO_URL}}', VIDEO_URL.encode('utf-8'))
                 return self.send(200, content, mime)
             if path == '/api/trainer/alphabet':
                 return self.send(200, ALPHABET)
@@ -156,6 +162,15 @@ def handler(app, hosts):
                 except ValueError as error:
                     return self.send(404, {'error': str(error)})
             return self.send(404, {'error': 'Not found'})
+
+        def do_HEAD(self):
+            if not self.allowed():
+                return self.send(403, {'error': 'Host or origin not allowed'})
+            if urlparse(self.path).path == VIDEO_URL:
+                return serve_training_video(self, app.output / 'training' / VIDEO_FILENAME, head=True)
+            self.send_response(404)
+            self.send_header('Content-Length', '0')
+            self.end_headers()
 
         def do_POST(self):
             if not self.allowed():

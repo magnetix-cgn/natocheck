@@ -2,6 +2,9 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Das NATO-Alphabet lernen": "Learn the NATO alphabet",
+    "Ron White zeigt dir eine Merktechnik für die NATO-Codewörter. Video auf Englisch · 7:44 Minuten.": "Ron White shares a memory technique for the NATO codewords. Video in English · 7:44 minutes.",
+    "NATO-Alphabet: Trainingsvideo von Ron White": "NATO alphabet: training video by Ron White",
     "Bitte achte darauf, Hintergrundgeräusche zu vermeiden. Teste das Spiel am besten mit einem Headset – so funktioniert die Spracherkennung am besten.": "Please avoid background noise. For the best speech recognition results, test the game with a headset.",
     "Bereit für die Challenge. Klicke auf Spiel starten.": "Ready for the challenge. Click Start game.",
     "ERKENNUNG UNSICHER": "UNCERTAIN RECOGNITION",

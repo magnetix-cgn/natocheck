@@ -99,6 +99,29 @@ claimed.
 
 ## Acceptance
 
+### Training media
+
+Before the first release containing a new training video, deliver the original,
+browser derivative and checksum manifest through the configured private AgentUp.
+Verify a full download from AgentUp against the derivative's pinned SHA-256 and
+byte count in `training-video.json`. Keep the delivery record in skill-local user
+output. Pass that verified readback to the existing release command:
+
+```sh
+NATOCHECK_TRAINING_VIDEO=/absolute/path/to/verified-agentup-readback.mp4 bash scripts/deploy-to-ai.sh
+```
+
+The command verifies the local bytes before transfer and the staged bytes again
+under the existing remote deployment lock. It installs the pinned asset under
+`/var/lib/natocheck/recordings/training/<sha256>.mp4`, readable by the existing
+service, and refuses to replace a mismatching asset. Subsequent releases can
+reuse the verified existing file without the environment variable. Application
+source still comes only from the pushed Git release. An unsuccessful release
+can leave the checkout updated; use the recovery procedure described above.
+
+Verify the Training/YouTube order, DE/EN text, playback, seeking, closing and
+pause-on-challenge behavior on desktop and mobile. Do not expose the intake share.
+
 Verify HTTPS at `https://natocheck.eventhacker.de/`, a generated exercise and its
 answer comparison, and an actual microphone in Chromium. Check that the browser
 permission prompt is shown only after clicking record, Whisper does not consume

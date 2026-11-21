@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/trainer.css?v={{APP_VERSION}}">
     <script src="/interface.js?v={{APP_VERSION}}" defer></script>
     <script src="/trainer.js?v={{APP_VERSION}}" defer></script>
+    <script src="/training.js?v={{APP_VERSION}}" defer></script>
 </head>
 <body>
 <main>
@@ -21,7 +22,14 @@
     <div class="intro"><span class="eyebrow">ALFA BIS ZULU / DEIN FUNK-CHECK</span>
         <h1>Dein Mikrofon. Dein Takt.<br><span>Dein NATO-Check.</span></h1>
         <p>Spiel starten. 3, 2, 1, Go! Sprich die NATO-Codewörter zu zehn Buchstaben. Dein Ergebnis kommt nach dem letzten Buchstaben.</p>
+        <div class="training-actions"><button type="button" id="trainingToggle" aria-expanded="false" aria-controls="trainingPanel">Training</button><a class="training-link" href="https://www.youtube.com/watch?v=j7GLe1XDSAE" target="_blank" rel="noopener noreferrer">YouTube</a></div>
     </div>
+    <section id="trainingPanel" class="card training-panel" aria-labelledby="training-title" hidden>
+        <div class="section-head"><h2 id="training-title">Das NATO-Alphabet lernen</h2><button type="button" id="trainingClose" class="text-button">Schließen ×</button></div>
+        <p>Ron White zeigt dir eine Merktechnik für die NATO-Codewörter. Video auf Englisch · 7:44 Minuten.</p>
+        <video id="trainingVideo" controls playsinline preload="none" tabindex="0" data-src="{{TRAINING_VIDEO_URL}}" aria-label="NATO-Alphabet: Trainingsvideo von Ron White"></video>
+        <p class="training-credit"><span>Original:</span> <a href="https://www.youtube.com/watch?v=j7GLe1XDSAE" target="_blank" rel="noopener noreferrer" lang="en">Memorize NATO Phonetic Alphabet in 7 minutes (EASY!)</a><br>Ron White Memory Expert - Memory Training &amp; Brain Training</p>
+    </section>
     <section id="alphabetPanel" class="card reference" aria-labelledby="alphabet-title" hidden><div class="section-head"><h2 id="alphabet-title">Das NATO-Alphabet</h2><button type="button" id="alphabetClose" class="text-button">Schließen ×</button></div><div id="alphabet" class="alphabet"></div><p class="small">Schreibvarianten wie Alpha/Alfa, Juliet/Juliett und Fox Trot/Foxtrot werden akzeptiert. Zusätzliche Wörter und falsche Reihenfolgen zählen als Abweichung.</p><a href="https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet" target="_blank" rel="noopener">Mehr zum NATO-Alphabet ↗</a></section>
     <section class="game-launch" aria-label="Spielmodus">
         <div><span class="eyebrow">LUST AUF EINE CHALLENGE?</span><h2>10 Buchstaben. Ein Takt. Eine Challenge.</h2><p>Sprich zu jedem Buchstaben das NATO-Codewort. Wir nehmen den ganzen Lauf auf und werten erst danach aus.</p><p class="recording-tip">Bitte achte darauf, Hintergrundgeräusche zu vermeiden. Teste das Spiel am besten mit einem Headset – so funktioniert die Spracherkennung am besten.</p></div>
