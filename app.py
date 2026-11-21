@@ -121,7 +121,8 @@ def handler(app, hosts):
             else:
                 data = json.dumps(value, ensure_ascii=False).encode('utf-8')
             self.send_response(code)
-            self.send_header('Content-Type', mime + ('; charset=utf-8' if mime != 'image/webp' else ''))
+            textual = mime.startswith('text/') or mime == 'application/json'
+            self.send_header('Content-Type', mime + ('; charset=utf-8' if textual else ''))
             self.send_header('Content-Length', str(len(data)))
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
@@ -150,6 +151,9 @@ def handler(app, hosts):
                      '/trainer.css': ('trainer.css', 'text/css'),
                      '/interface.js': ('interface.js', 'text/javascript'),
                      '/assets/nato-training.webp': ('assets/nato-training.webp', 'image/webp'),
+                     '/assets/fonts/eventhacker-display-bold.woff2': ('assets/fonts/eventhacker-display-bold.woff2', 'font/woff2'),
+                     '/assets/fonts/montserrat-variable.woff2': ('assets/fonts/montserrat-variable.woff2', 'font/woff2'),
+                     '/assets/fonts/montserrat-OFL.txt': ('assets/fonts/montserrat-OFL.txt', 'text/plain'),
                      '/assets/eventhacker-logo-white.webp': ('assets/eventhacker-logo-white.webp', 'image/webp')}
             if path in files:
                 filename, mime = files[path]

@@ -83,8 +83,12 @@ with byte-range support. Private intake links never enter the page or repository
 `training-video.json` pins the public source attribution, byte count and SHA-256.
 
 The interface follows the Eventhacker profile palette (blue `#00AEEF`, deep black
-`#0B0F14`, neutral gray `#2D2D33`, steel gray and white). The profile does not
-bundle its licensed fonts, so the interface retains its local sans-serif fallback.
+`#0B0F14`, neutral gray `#2D2D33`, steel gray and white). The NatoCheck wordmark,
+headings and prominent game figures use the existing original **Eventhacker
+Display** face; body text and controls use **Montserrat**. Both WOFF2 files are
+served locally after verified AgentUp delivery. German glyphs are included.
+The existing illustrated Eventhacker logo is preserved. See
+`assets/fonts/NOTICE.md` for provenance and the bundled Montserrat license.
 
 ## Run locally in XvX
 

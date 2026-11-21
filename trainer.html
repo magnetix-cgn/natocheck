@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>NatoCheck · Buchstabieren. Sprechen. Checken.</title>
+    <link rel="preload" href="/assets/fonts/eventhacker-display-bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/montserrat-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/trainer.css?v={{APP_VERSION}}">
     <script src="/interface.js?v={{APP_VERSION}}" defer></script>
     <script src="/trainer.js?v={{APP_VERSION}}" defer></script>
@@ -22,7 +24,7 @@
     <section id="alphabetPanel" class="card reference" aria-labelledby="alphabet-title" hidden><div class="section-head"><h2 id="alphabet-title" tabindex="-1">Das NATO-Alphabet</h2><button type="button" id="alphabetClose" class="text-button">Schließen ×</button></div><div id="alphabet" class="alphabet"></div><p class="small">Schreibvarianten wie Alpha/Alfa, Juliet/Juliett und Fox Trot/Foxtrot werden akzeptiert. Zusätzliche Wörter und falsche Reihenfolgen zählen als Abweichung.</p><a href="https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet" target="_blank" rel="noopener">Mehr zum NATO-Alphabet ↗</a></section>
     <section id="gameSummary" class="card game-summary" aria-live="polite" hidden><span class="eyebrow">DEIN ERGEBNIS</span><h2 id="gameSummaryTitle" tabindex="-1"></h2><p id="gameSummaryText"></p><button type="button" id="playAgain" class="primary">Noch eine Runde →</button></section>
     <div class="intro"><span class="eyebrow">ALFA BIS ZULU / DEIN FUNK-CHECK</span>
-        <h1>Dein Mikrofon. Dein Takt.<br><span>Dein NATO-Check.</span></h1>
+        <h1><span class="headline-phrase">Dein Mikrofon.</span> <span class="headline-phrase">Dein Takt.</span><br><span>Dein NATO-Check.</span></h1>
         <p>Spiel starten. 3, 2, 1, Go! Sprich die NATO-Codewörter zu zehn Buchstaben. Dein Ergebnis kommt nach dem letzten Buchstaben.</p>
     </div>
     <section id="trainingPanel" class="card training-panel" aria-labelledby="training-title">
