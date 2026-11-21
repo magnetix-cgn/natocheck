@@ -29,12 +29,14 @@ CHECK_MEDIA
     trap 'ssh -o BatchMode=yes -o ConnectTimeout=15 "$ssh_target" "rm -f -- $training_upload"' EXIT
     scp -q "$NATOCHECK_TRAINING_VIDEO" "$ssh_target:$training_upload"
 fi
-ssh -o BatchMode=yes -o ConnectTimeout=15 "$ssh_target" bash -s -- "$release_sha" "${NATOCHECK_DEPENDENCIES_READY:-}" "$training_upload" <<'REMOTE'
+# SSH joins arguments into a remote shell command; preserve optional positions.
+ssh -o BatchMode=yes -o ConnectTimeout=15 "$ssh_target" bash -s -- "$release_sha" "${NATOCHECK_DEPENDENCIES_READY:--}" "${training_upload:--}" <<'REMOTE'
 set -euo pipefail
 cd /var/www/natocheck
 release_sha="$1"
 dependencies_ready="${2:-}"
 training_upload="${3:-}"
+[[ "$training_upload" != '-' ]] || training_upload=''
 exec 9>.git/deploy.lock
 flock -n 9 || { echo 'Another deployment is running.' >&2; exit 1; }
 [[ "$(git branch --show-current)" == main ]]
