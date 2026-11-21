@@ -151,6 +151,7 @@ def handler(app, hosts):
                      '/trainer.css': ('trainer.css', 'text/css'),
                      '/interface.js': ('interface.js', 'text/javascript'),
                      '/assets/nato-training.webp': ('assets/nato-training.webp', 'image/webp'),
+                     '/assets/natocheck-challenge-social.jpg': ('assets/natocheck-challenge-social.jpg', 'image/jpeg'),
                      '/assets/fonts/eventhacker-display-bold.woff2': ('assets/fonts/eventhacker-display-bold.woff2', 'font/woff2'),
                      '/assets/fonts/montserrat-variable.woff2': ('assets/fonts/montserrat-variable.woff2', 'font/woff2'),
                      '/assets/fonts/montserrat-OFL.txt': ('assets/fonts/montserrat-OFL.txt', 'text/plain'),
