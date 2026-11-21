@@ -53,6 +53,10 @@ body:not(.playing) [data-challenge-workspace] { display: none; }
 .training-actions button{background:var(--mint);color:var(--bg)}
 .training-link:hover{background:#142c42}
 .training-panel{margin-bottom:20px}
-.training-panel video{display:block;width:100%;max-height:65vh;margin-top:20px;background:#000;aspect-ratio:16/9;border-radius:8px}
+.training-player{position:relative;margin-top:20px}
+.training-panel video{display:block;width:100%;max-height:65vh;background:#000;aspect-ratio:16/9;border-radius:8px;object-fit:contain}
+.training-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;border:0;background:#0b0f14e6;padding:18px 24px;font-size:16px;white-space:nowrap;box-shadow:0 4px 24px #0008}
+.training-play .play-icon{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--mint);color:var(--bg);font-size:28px;padding-left:4px}
+.training-play:hover:enabled{background:#0b0f14}
 .training-credit{font-size:14px;overflow-wrap:anywhere}
 .playing .training-panel{display:none}

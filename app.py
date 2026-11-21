@@ -146,6 +146,7 @@ def handler(app, hosts):
                      '/training.js': ('training.js', 'text/javascript'),
                      '/trainer.css': ('trainer.css', 'text/css'),
                      '/interface.js': ('interface.js', 'text/javascript'),
+                     '/assets/nato-training.webp': ('assets/nato-training.webp', 'image/webp'),
                      '/assets/eventhacker-logo-white.webp': ('assets/eventhacker-logo-white.webp', 'image/webp')}
             if path in files:
                 filename, mime = files[path]

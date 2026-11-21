@@ -82,7 +82,7 @@ class TrainingVideoTests(unittest.TestCase):
         self.assertEqual(self.request('/training/../../app.py')[0], 404)
         self.assertEqual(self.request(Origin='https://untrusted.invalid')[0], 403)
 
-    def test_training_controls_credit_source_and_lazy_video(self):
+    def test_training_controls_credit_source_and_visible_poster(self):
         status, _, body = self.request('/')
         self.assertEqual(status, 200)
         self.assertLess(body.index(b'id="trainingToggle"'), body.index(b'>YouTube</a>'))
@@ -91,6 +91,14 @@ class TrainingVideoTests(unittest.TestCase):
         self.assertIn(b'https://www.youtube.com/watch?v=j7GLe1XDSAE', body)
         self.assertIn(b'Ron White', body)
         self.assertIn(b'controls playsinline preload="none"', body)
+        self.assertNotIn(b'aria-labelledby="training-title" hidden', body)
+        self.assertIn(b'poster="/assets/nato-training.webp?', body)
+        self.assertIn(b'id="trainingPlay"', body)
+        status, headers, poster = self.request('/assets/nato-training.webp')
+        self.assertEqual(status, 200)
+        self.assertEqual(headers['Content-Type'], 'image/webp')
+        self.assertEqual(poster[:4], b'RIFF')
+        self.assertEqual(poster[8:12], b'WEBP')
         self.assertNotIn(b'autoplay', body)
         self.assertNotIn(b'public.php', body)
 

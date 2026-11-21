@@ -39,10 +39,12 @@ The official codewords displayed include Alfa and Juliett.
 
 ## Training video
 
-The **Training** button opens Ron White's English video, *Memorize NATO Phonetic
-Alphabet in 7 minutes (EASY!)* (7:44), without autoplay. The adjacent **YouTube**
+Ron White's English video, *Memorize NATO Phonetic Alphabet in 7 minutes
+(EASY!)* (7:44), appears directly on the page with its original thumbnail and a
+large **Play video** button. Playback starts after clicking Play or **Training**.
+The adjacent **YouTube**
 button links to [the original](https://www.youtube.com/watch?v=j7GLe1XDSAE).
-Closing the player or starting a challenge pauses playback. Both interface
+Starting a challenge pauses playback. Both interface
 languages include the training controls and source attribution.
 
 The original and a 720p H.264/AAC MP4 derivative are delivered through the

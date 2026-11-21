@@ -2,6 +2,9 @@
 
 // Interface language is independent of the fixed English recognizer.
 const interfaceTranslations = {
+    "Trainingsvideo abspielen": "Play training video",
+    "Video abspielen": "Play video",
+    "Das Video konnte nicht gestartet werden. Bitte versuche es erneut oder öffne das Original auf YouTube.": "The video could not start. Please try again or open the original on YouTube.",
     "Das NATO-Alphabet lernen": "Learn the NATO alphabet",
     "Ron White zeigt dir eine Merktechnik für die NATO-Codewörter. Video auf Englisch · 7:44 Minuten.": "Ron White shares a memory technique for the NATO codewords. Video in English · 7:44 minutes.",
     "NATO-Alphabet: Trainingsvideo von Ron White": "NATO alphabet: training video by Ron White",

@@ -119,8 +119,9 @@ reuse the verified existing file without the environment variable. Application
 source still comes only from the pushed Git release. An unsuccessful release
 can leave the checkout updated; use the recovery procedure described above.
 
-Verify the Training/YouTube order, DE/EN text, playback, seeking, closing and
-pause-on-challenge behavior on desktop and mobile. Do not expose the intake share.
+Verify the Training/YouTube order, initially visible thumbnail and Play button,
+DE/EN text, playback, seeking and pause-on-challenge behavior on desktop and
+mobile. Do not expose the intake share.
 
 Verify HTTPS at `https://natocheck.eventhacker.de/`, a generated exercise and its
 answer comparison, and an actual microphone in Chromium. Check that the browser
