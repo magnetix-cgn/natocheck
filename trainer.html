@@ -36,7 +36,13 @@
         <nav class="interface-language" aria-label="Interface language"><button type="button" data-ui-language="de" lang="de" aria-pressed="true">DE</button><button type="button" data-ui-language="en" lang="en" aria-pressed="false">EN</button></nav>
         <span class="tag app-version">Version {{APP_VERSION}}</span>
         <button type="button" id="alphabetToggle" aria-expanded="false" aria-controls="alphabetPanel">NATO-Alphabet einblenden</button>
-        <a class="eventhacker-logo" href="https://eventhacker.de/" aria-label="Eventhacker Startseite"><img src="/assets/eventhacker-logo-white.webp" width="560" height="209" alt="Eventhacker Köln"></a>
+        <div class="brand-partners">
+            <div class="arts-culture-logo">
+                <img src="/assets/arts-culture-header-v1.webp" width="96" height="96" alt="Arts &amp; Culture Germany e.V.">
+                <span aria-hidden="true">Arts &amp; Culture<small>Germany e.V.</small></span>
+            </div>
+            <a class="eventhacker-logo" href="https://eventhacker.de/" aria-label="Eventhacker Startseite"><img src="/assets/eventhacker-logo-white.webp" width="560" height="209" alt="Eventhacker Köln"></a>
+        </div>
     </header>
     <section id="alphabetPanel" class="card reference" aria-labelledby="alphabet-title" hidden><div class="section-head"><h2 id="alphabet-title" tabindex="-1">Das NATO-Alphabet</h2><button type="button" id="alphabetClose" class="text-button">Schließen ×</button></div><div id="alphabet" class="alphabet"></div><p class="small">Schreibvarianten wie Alpha/Alfa, Juliet/Juliett und Fox Trot/Foxtrot werden akzeptiert. Zusätzliche Wörter und falsche Reihenfolgen zählen als Abweichung.</p><a href="https://www.bundeswehr.de/de/auftrag/verteidigung/nato-alphabet" target="_blank" rel="noopener">Mehr zum NATO-Alphabet ↗</a></section>
     <section id="gameSummary" class="card game-summary" aria-live="polite" hidden><span class="eyebrow">DEIN ERGEBNIS</span><h2 id="gameSummaryTitle" tabindex="-1"></h2><p id="gameSummaryText"></p><button type="button" id="playAgain" class="primary">Noch eine Runde →</button></section>

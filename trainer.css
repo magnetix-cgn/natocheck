@@ -82,3 +82,26 @@ h1,h2{overflow-wrap:break-word}
 .share-badge{display:inline-flex;align-items:center;min-height:46px;margin-top:8px;padding:12px 18px;border:1px solid #25d366;border-radius:9px;background:#25d366;color:#0B0F14;font-size:14px;font-weight:700;text-decoration:none;line-height:1.5}
 .share-badge:hover{background:#5de18d;border-color:#5de18d}
 @media(max-width:370px){.brand{gap:12px}.wordmark{font-size:21px}.interface-language button{padding:8px 10px}}
+
+/* Keep both partner identities readable in the desktop and mobile header. */
+.brand{display:grid;grid-template-columns:auto auto 1fr auto;gap:20px}
+.brand-partners{display:flex;align-items:center;justify-content:space-between;gap:22px}
+.arts-culture-logo{display:flex;align-items:center;gap:8px;color:#c4a65f;font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap}
+.brand .arts-culture-logo img{display:block;width:32px;height:32px;margin:0;object-fit:contain}
+.arts-culture-logo small{display:block;margin-top:3px;color:var(--muted);font-size:10px;font-weight:400}
+.brand .eventhacker-logo img{display:block;width:130px;margin:0}
+#alphabetToggle{grid-column:1/-1;grid-row:2;width:100%;margin:0}
+.app-version{justify-self:start}
+@media(max-width:1000px){
+    .brand{grid-template-columns:1fr auto}
+    .app-version{grid-column:1/-1}
+    .brand-partners{grid-column:1/-1;grid-row:3}
+    #alphabetToggle{grid-row:4;order:initial}
+}
+@media(max-width:370px){
+    .brand-partners{gap:12px}
+    .arts-culture-logo{gap:6px;font-size:11px}
+    .arts-culture-logo small{font-size:9px}
+    .brand .arts-culture-logo img{width:28px;height:28px}
+    .brand .eventhacker-logo img{width:112px}
+}

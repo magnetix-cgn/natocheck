@@ -156,6 +156,7 @@ def handler(app, hosts):
                      '/assets/fonts/eventhacker-display-bold.woff2': ('assets/fonts/eventhacker-display-bold.woff2', 'font/woff2'),
                      '/assets/fonts/montserrat-variable.woff2': ('assets/fonts/montserrat-variable.woff2', 'font/woff2'),
                      '/assets/fonts/montserrat-OFL.txt': ('assets/fonts/montserrat-OFL.txt', 'text/plain'),
+                     '/assets/arts-culture-header-v1.webp': ('assets/arts-culture-header-v1.webp', 'image/webp'),
                      '/assets/eventhacker-logo-white.webp': ('assets/eventhacker-logo-white.webp', 'image/webp')}
             if path in files:
                 filename, mime = files[path]
